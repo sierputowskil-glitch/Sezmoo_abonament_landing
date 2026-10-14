@@ -67,7 +67,7 @@ button{font:inherit;cursor:pointer}
 .btn--xl{min-height:64px;padding:0 36px;font-size:15px}
 .h2{font-size:clamp(32px,4.4vw,64px)}
 .em{font-weight:820;font-stretch:112%}
-.lead{font-size:clamp(17px,1.4vw,20px);line-height:1.5;color:var(--fg-dim);max-width:560px}
+.lead{font-size:clamp(17px,1.4vw,20px);line-height:1.5;color:var(--fg-dim);max-width:960px}
 
 /* buttons (jak na sezmoo.com) */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:52px;padding:0 28px;border-radius:100px;border:1px solid var(--fg);
@@ -121,6 +121,13 @@ button{font:inherit;cursor:pointer}
 .hero__strip{position:absolute;left:-6%;right:-10%;bottom:-2%;background:var(--y);transform:rotate(-3deg);padding:clamp(16px,2vw,26px) 0 clamp(16px,2vw,26px) clamp(40px,10%,90px);box-shadow:0 10px 30px rgb(0 0 0 / .18);z-index:2}
 .hero__strip b{display:block;font-size:clamp(34px,4.4vw,64px);font-weight:820;font-stretch:112%;letter-spacing:-.02em;line-height:1}
 .hero__strip span{display:block;font-size:clamp(20px,2.6vw,38px);letter-spacing:-.015em;line-height:1.05}
+@media (min-width:981px){
+  .hero__grid{align-items:stretch}
+  .hero__copy{align-self:center}
+  .hero__cta{flex-wrap:nowrap}
+  .hero__media{aspect-ratio:auto;margin-block:clamp(40px,6vw,96px) -4px}
+  .hero__strip{bottom:-6px}
+}
 @media (max-width:980px){
   .hero{padding-top:20px}
   .hero__grid{grid-template-columns:1fr;gap:20px}
@@ -172,7 +179,8 @@ button{font:inherit;cursor:pointer}
 /* sections */
 .sec{padding-block:clamp(72px,9vw,120px);position:relative}
 .sec__head{display:flex;justify-content:space-between;align-items:flex-end;gap:32px;flex-wrap:wrap;margin-bottom:clamp(32px,4vw,56px)}
-.sec__head .lead{max-width:440px}
+.sec__head .lead{max-width:640px}
+@media (min-width:981px){.sec__head .lead,.sec__head + .lead{max-width:1200px;font-size:clamp(17px,1.25vw,19px)}}
 
 /* etaty */
 .jobs{display:grid;grid-template-columns:1fr 1fr;gap:clamp(40px,6vw,80px)}
@@ -207,6 +215,9 @@ button{font:inherit;cursor:pointer}
 .pack__cta{margin-top:14px;white-space:nowrap}
 .pack{grid-template-columns:minmax(max-content,.9fr) minmax(0,1.3fr) auto}
 .pack__h{white-space:nowrap}
+.pack--custom .pack__h{font-size:clamp(51px,6.7vw,96px)}
+.pack--custom .pack__t{font-size:clamp(17px,1.5vw,21px)}
+.pack--custom .pack__d{font-size:15px}
 @media (max-width:760px){.pack__badge{left:28px}}
 .pack__p{text-align:right}
 .pack__p .mono{font-size:11px;letter-spacing:.2em}
@@ -250,6 +261,9 @@ button{font:inherit;cursor:pointer}
 .scope{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px;list-style:none}
 .scope__img{aspect-ratio:4/5;border-radius:4px;overflow:hidden;background:var(--bg-3)}
 .scope__img img{width:100%;height:100%;object-fit:cover}
+.scope__img--vid{position:relative;container-type:size}
+.scope__img--vid img{position:absolute;inset:0}
+.scope__img--vid iframe{position:absolute;left:50%;top:50%;width:max(100cqw,56.25cqh);height:max(100cqh,177.78cqw);transform:translate(-50%,-50%);border:0;pointer-events:none}
 .scope h3{font-size:24px;font-weight:800;letter-spacing:-.015em;margin-top:18px}
 .scope p{color:var(--fg-dim);font-size:16px;margin-top:6px}
 @media (min-width:981px){.scope li:nth-child(even){margin-top:56px}}
@@ -491,7 +505,7 @@ button{font:inherit;cursor:pointer}
       <li class="pack"><p class="pack__h">30h</p><div><h3 class="pack__t">Na bieżące potrzeby</h3><p class="pack__d">Dla marek, które potrzebują regularnych grafik, krótkich materiałów wideo lub wybranych sesji i&nbsp;aktualizacji contentu.</p></div><div class="pack__p"><span class="mono">Miesięcznie</span><b>Wycena indywidualna</b></div></li>
       <li class="pack pack--hi pack--top"><span class="pack__badge">Najczęściej wybierany</span><p class="pack__h">60h</p><div><h3 class="pack__t">Na regularną produkcję</h3><p class="pack__d">Dla marketingu prowadzącego stałe działania: rolki, sesje foto, projekty graficzne i&nbsp;materiały do&nbsp;komunikacji.</p></div><div class="pack__p"><span class="mono">Miesięcznie</span><b>Wycena indywidualna</b><a class="btn btn--ink pack__cta" href="#kontakt" data-cta="pack-60">Chcę pakiet 60h <svg aria-hidden="true"><use href="#i-arrow"/></svg></a></div></li>
       <li class="pack"><p class="pack__h">120h</p><div><h3 class="pack__t">Na wiele równoległych działań</h3><p class="pack__d">Dla zespołów marketingu, które realizują kilka projektów jednocześnie i&nbsp;potrzebują większej dostępności specjalistów.</p></div><div class="pack__p"><span class="mono">Miesięcznie</span><b>Wycena indywidualna</b></div></li>
-      <li class="pack"><p class="pack__h">Custom</p><div><h3 class="pack__t">Zakres dopasowany do&nbsp;potrzeb</h3><p class="pack__d">Dla działów marketingu, które potrzebują niestandardowej liczby godzin, większej dostępności specjalistów lub indywidualnego modelu współpracy. Wspólnie ustalamy zakres usług, miesięczną pulę godzin, priorytety i&nbsp;sposób organizacji prac.</p></div><div class="pack__p"><span class="mono">Indywidualny zakres</span><b>Indywidualna wycena</b></div></li>
+      <li class="pack pack--custom"><p class="pack__h">Custom</p><div><h3 class="pack__t">Zakres dopasowany do&nbsp;potrzeb</h3><p class="pack__d">Dla działów marketingu, które potrzebują niestandardowej liczby godzin, większej dostępności specjalistów lub indywidualnego modelu współpracy. Wspólnie ustalamy zakres usług, miesięczną pulę godzin, priorytety i&nbsp;sposób organizacji prac.</p></div><div class="pack__p"><span class="mono">Indywidualny zakres</span><b>Indywidualna wycena</b></div></li>
     </ul>
     <div class="packs__foot">
       <p>Potrzebujesz innej liczby godzin lub niestandardowego zakresu? Wybierz Custom — dopasujemy współpracę do&nbsp;Twojego marketingu.</p>
@@ -509,12 +523,12 @@ button{font:inherit;cursor:pointer}
       <p class="lead">Wideo, fotografia, grafika i&nbsp;kampanie — efekty pracy naszego zespołu.</p>
     </div>
     <ul class="works">
-      <li><a class="work" href="https://sezmoo.com/realizacja-exlantix/" data-cta="work-exlantix"><div class="work__img"><img src="assets/abonament/realizacja-exlantix.webp" alt="Premiera marki EXLANTIX w Gdańsku – event, fotografia i wideo SEZMOO" width="900" height="600" loading="lazy" /><span class="work__tag">EVENT</span></div><div class="work__meta"><h3>EXLANTIX</h3><p>Premiera marki</p></div></a></li>
+      <li><a class="work" href="https://sezmoo.com/realizacja-doraco-hala-tvp/" data-cta="work-doraco-tvp"><div class="work__img"><img src="assets/abonament/realizacja-doraco-tvp.webp" alt="DORACO – realizacja wideo dla TVP" width="900" height="674" loading="lazy" /><span class="work__tag">WIDEO</span></div><div class="work__meta"><h3>DORACO</h3><p>Realizacja dla TVP</p></div></a></li>
       <li><a class="work" href="https://sezmoo.com/portfolio/" data-cta="work-audi-rs5"><div class="work__img"><img src="assets/abonament/realizacja-audi-rs5.webp" alt="Audi RS5 – studyjna sesja zdjęciowa" width="900" height="600" loading="lazy" /><span class="work__tag">FOTO + WIDEO</span></div><div class="work__meta"><h3>Audi RS5</h3><p>Sesja studyjna</p></div></a></li>
       <li><a class="work" href="https://sezmoo.com/realizacja-baltic-towers-rekrutacja/" data-cta="work-baltic-towers"><div class="work__img"><img src="assets/abonament/realizacja-baltic-towers.webp" alt="Baltic Towers – fotografia produkcji przemysłowej" width="900" height="600" loading="lazy" /><span class="work__tag">FOTO + WIDEO</span></div><div class="work__meta"><h3>Baltic Towers</h3><p>Produkcja</p></div></a></li>
-      <li><a class="work" href="https://sezmoo.com/realizacja-world-of-warships/" data-cta="work-world-of-warships"><div class="work__img"><img src="assets/abonament/realizacja-world-of-warships.webp" alt="World of Warships Captain's Club – event gamingowy, realizacja wideo SEZMOO" width="900" height="600" loading="lazy" /><span class="work__tag">EVENT</span></div><div class="work__meta"><h3>World of Warships</h3><p>Captain's Club</p></div></a></li>
+      <li><a class="work" href="https://sezmoo.com/portfolio/" data-cta="work-rydzowka"><div class="work__img"><img src="https://i.ytimg.com/vi/foNjF4rmI6A/hq2.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/foNjF4rmI6A/hqdefault.jpg'" alt="Rydzówka Resort – film reklamowy SEZMOO" width="480" height="360" loading="lazy" /><span class="work__tag">WIDEO</span></div><div class="work__meta"><h3>Rydzówka Resort</h3><p>Film reklamowy</p></div></a></li>
       <li><a class="work" href="https://sezmoo.com/realizacja-soho-form/" data-cta="work-soho-form"><div class="work__img"><img src="assets/abonament/realizacja-soho-form.webp" alt="Soho Form – branding i strona internetowa" width="900" height="506" loading="lazy" /><span class="work__tag">GRAFIKA</span></div><div class="work__meta"><h3>Soho Form</h3><p>Branding / WWW</p></div></a></li>
-      <li><a class="work" href="https://sezmoo.com/realizacja-doraco-hala-tvp/" data-cta="work-doraco-tvp"><div class="work__img"><img src="assets/abonament/realizacja-doraco-tvp.webp" alt="DORACO – realizacja dla TVP" width="900" height="674" loading="lazy" /><span class="work__tag">WIDEO</span></div><div class="work__meta"><h3>DORACO</h3><p>Realizacja dla TVP</p></div></a></li>
+      <li><a class="work" href="https://sezmoo.com/realizacja-primespot/" data-cta="work-primespot"><div class="work__img" style="background:#0f2238"><img style="object-fit:contain" src="assets/abonament/realizacja-primespot.jpg" alt="PrimeSpot Przystań Jurata – kreacje kampanii Meta Ads SEZMOO" width="1200" height="628" loading="lazy" /><span class="work__tag">KAMPANIA</span></div><div class="work__meta"><h3>PrimeSpot</h3><p>Kampania Meta Ads / kreacje</p></div></a></li>
     </ul>
     <p class="mono swipe" aria-hidden="true">Przesuń →</p>
     <div class="works__more"><a class="btn btn--ghost-y btn--xl" href="https://sezmoo.com/portfolio/" data-cta="portfolio">Zobacz portfolio <svg aria-hidden="true"><use href="#i-arrow"/></svg></a></div>
@@ -549,9 +563,9 @@ button{font:inherit;cursor:pointer}
       <p class="lead">Łączysz kompetencje w&nbsp;ramach ustalonej puli godzin i&nbsp;dopasowujesz je do&nbsp;planu komunikacji swojej marki.</p>
     </div>
     <ul class="scope">
-      <li><div class="scope__img"><img src="assets/abonament/zakres-wideo.webp" alt="Konferencja DORACO – publiczność podczas eventu, realizacja wideo i foto SEZMOO" width="720" height="900" loading="lazy" /></div><h3>Wideo</h3><p>Filmy promocyjne, rolki, relacje, ujęcia z&nbsp;drona i&nbsp;montaż.</p></li>
+      <li><div class="scope__img scope__img--vid"><img src="https://i.ytimg.com/vi/c_5toy1IhIs/oardefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/c_5toy1IhIs/hqdefault.jpg'" alt="Audi RS3 – film promocyjny samochodu, realizacja wideo SEZMOO" width="720" height="900" loading="lazy" /><iframe src="https://www.youtube-nocookie.com/embed/c_5toy1IhIs?autoplay=1&amp;mute=1&amp;controls=0&amp;loop=1&amp;playlist=c_5toy1IhIs&amp;playsinline=1&amp;modestbranding=1&amp;rel=0&amp;iv_load_policy=3&amp;disablekb=1" title="Audi RS3 – film SEZMOO" allow="autoplay; encrypted-media; picture-in-picture" loading="lazy" tabindex="-1" aria-hidden="true"></iframe></div><h3>Wideo</h3><p>Filmy promocyjne, rolki, relacje, ujęcia z&nbsp;drona i&nbsp;montaż.</p></li>
       <li><div class="scope__img"><img src="assets/abonament/zakres-foto.webp" alt="Reflektor LED Audi RS5 w czerwonym świetle – studyjna sesja zdjęciowa samochodu SEZMOO" width="720" height="900" loading="lazy" /></div><h3>Fotografia</h3><p>Sesje produktowe, wizerunkowe, firmowe i&nbsp;eventowe.</p></li>
-      <li><div class="scope__img"><img src="assets/abonament/zakres-grafika.webp" alt="Strona internetowa Soho Form na monitorze – projekt WWW SEZMOO" width="720" height="900" loading="lazy" /></div><h3>Grafika i&nbsp;WWW</h3><p>Grafiki do&nbsp;social mediów, materiały sprzedażowe, projekty do&nbsp;druku, aktualizacje stron i&nbsp;landing page.</p></li>
+      <li><div class="scope__img" style="background:#ffd200"><img style="object-fit:contain" src="assets/abonament/realizacja-soho-form.webp" alt="Strona internetowa Soho Form na laptopie i telefonie – projekt WWW SEZMOO" width="900" height="506" loading="lazy" /></div><h3>Grafika i&nbsp;WWW</h3><p>Grafiki do&nbsp;social mediów, materiały sprzedażowe, projekty do&nbsp;druku, aktualizacje stron i&nbsp;landing page.</p></li>
       <li><div class="scope__img"><img src="assets/abonament/zakres-social.webp" alt="Grafika do social media BESTUNE T77 dla Plichta – kreacja SEZMOO" width="720" height="900" loading="lazy" /></div><h3>Content i&nbsp;social media</h3><p>Materiały do&nbsp;publikacji, posty, stories i&nbsp;wsparcie w&nbsp;planowaniu komunikacji.</p></li>
     </ul>
     <p class="mono swipe" aria-hidden="true">Przesuń →</p>
