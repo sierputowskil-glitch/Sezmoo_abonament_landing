@@ -1,0 +1,14 @@
+<?php
+// Skopiuj jako config.local.php (NIE commitować) i uzupełnij.
+return [
+  'MAIL_TO' => 'biuro@sezmoo.com',
+  'SMTP_FROM' => 'no-reply@sezmoo.com',
+  'SMTP_FROM_NAME' => 'SEZMOO',
+  'SMTP_HOST' => '',
+  'SMTP_PORT' => 587,
+  'SMTP_SECURE' => 'tls',
+  'SMTP_USER' => '',
+  'SMTP_PASS' => '',
+  'TURNSTILE_SITE_KEY' => '',
+  'TURNSTILE_SECRET_KEY' => '',
+];
