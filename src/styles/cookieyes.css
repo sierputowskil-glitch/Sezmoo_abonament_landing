@@ -1,298 +1,175 @@
 /**
- * CookieYes banner + preference center — SEZMOO brand.
- * Tokens mirror lp.css (:root).
+ * CookieYes — mirror live sezmoo.com dashboard theme
+ * (WP plugin site key colours scraped 2026-10-16).
+ *
+ * Banner: white box, #f4f4f4 border, 6px radius
+ * Accept: #FFD200 fill / black text
+ * Reject / Customise / Preferences: yellow outline
+ * Policy link + toggles on: #FFD200
  */
 :root {
-  --cky-bg: #f5f3ef;
-  --cky-paper: #fbfaf7;
-  --cky-line: #c2bdb7;
-  --cky-fg: #231d18;
-  --cky-dim: #534b46;
-  --cky-y: #ffd200;
-  --cky-on-y: #17140a;
-  --cky-ink: #0a0806;
-  --cky-radius: 4px;
-  --cky-pill: 100px;
-  --cky-display: 'Archivo Variable', system-ui, sans-serif;
-  --cky-mono: 'Space Mono', ui-monospace, monospace;
+  --cky-live-bg: #ffffff;
+  --cky-live-border: #f4f4f4;
+  --cky-live-text: #212121;
+  --cky-live-y: #ffd200;
+  --cky-live-on-y: #000000;
+  --cky-live-toggle-off: #d0d5d2;
+  --cky-live-audit: #f4f4f4;
+  --cky-live-audit-border: #ebebeb;
+  --cky-live-radius: 6px;
+  --cky-live-btn-radius: 2px;
 }
 
 /* —— Overlay —— */
 .cky-overlay {
-  background: rgb(10 8 6 / 0.45) !important;
-  backdrop-filter: blur(2px);
+  background: #000000 !important;
+  opacity: 0.4 !important;
 }
 
-/* —— Consent bar / box —— */
+/* —— Consent bar (box layout) —— */
 .cky-consent-container .cky-consent-bar,
 .cky-consent-container .cky-box {
-  background: var(--cky-bg) !important;
-  border: 1px solid var(--cky-line) !important;
-  border-radius: var(--cky-radius) !important;
-  box-shadow: 0 12px 40px rgb(10 8 6 / 0.14) !important;
-  font-family: var(--cky-display) !important;
-  color: var(--cky-fg) !important;
+  background-color: var(--cky-live-bg) !important;
+  border: 1px solid var(--cky-live-border) !important;
+  border-radius: var(--cky-live-radius) !important;
+  box-shadow: 0 -1px 10px 0 #acabab4d !important;
+  color: var(--cky-live-text) !important;
 }
 
-.cky-title {
-  font-family: var(--cky-display) !important;
-  font-weight: 720 !important;
-  font-stretch: 104% !important;
-  letter-spacing: -0.02em !important;
-  color: var(--cky-fg) !important;
-  font-size: clamp(18px, 2vw, 22px) !important;
-  line-height: 1.2 !important;
+.cky-title,
+.cky-notice .cky-title {
+  color: var(--cky-live-text) !important;
+  font-weight: 700 !important;
+  font-size: 18px !important;
+  line-height: 24px !important;
 }
 
 .cky-notice-des,
-.cky-notice-des * {
-  font-family: var(--cky-display) !important;
-  color: var(--cky-dim) !important;
-  font-size: 15px !important;
-  line-height: 1.5 !important;
+.cky-notice-des *,
+.cky-notice-group {
+  color: var(--cky-live-text) !important;
+  font-size: 14px !important;
+  line-height: 24px !important;
+  font-weight: 400 !important;
 }
 
-.cky-policy,
-.cky-notice-des a {
-  color: var(--cky-fg) !important;
+.cky-notice-des a.cky-policy,
+.cky-notice-des button.cky-policy,
+.cky-dma-content-wrapper a.cky-policy,
+.cky-policy {
+  color: var(--cky-live-y) !important;
+  border-color: transparent !important;
+  background-color: transparent !important;
   text-decoration: underline !important;
-  text-underline-offset: 2px !important;
 }
 
-.cky-policy:hover,
-.cky-notice-des a:hover {
-  color: var(--cky-ink) !important;
-}
-
-/* —— Buttons (pill like .btn) —— */
+/* —— Buttons —— */
 .cky-btn {
-  font-family: var(--cky-mono) !important;
-  font-size: 12px !important;
-  letter-spacing: 0.12em !important;
-  text-transform: uppercase !important;
-  border-radius: var(--cky-pill) !important;
-  min-height: 44px !important;
-  padding: 0 22px !important;
-  border-width: 1px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  line-height: 24px !important;
+  padding: 8px !important;
+  border-radius: var(--cky-live-btn-radius) !important;
+  border-width: 2px !important;
   border-style: solid !important;
-  transition:
-    background 0.25s,
-    color 0.25s,
-    border-color 0.25s !important;
+  text-transform: none !important;
+  min-height: 0 !important;
+  letter-spacing: normal !important;
   box-shadow: none !important;
+  text-shadow: none !important;
 }
 
-.cky-btn-accept {
-  background: var(--cky-y) !important;
-  border-color: var(--cky-y) !important;
-  color: var(--cky-on-y) !important;
+.cky-btn:hover {
+  opacity: 0.8 !important;
 }
 
-.cky-btn-accept:hover {
-  background: var(--cky-fg) !important;
-  border-color: var(--cky-fg) !important;
-  color: #fff !important;
+.cky-btn-accept,
+.cky-preference-center .cky-btn-accept,
+.cky-btn-accept-all {
+  background-color: var(--cky-live-y) !important;
+  border-color: var(--cky-live-y) !important;
+  color: var(--cky-live-on-y) !important;
 }
 
-.cky-btn-reject {
-  background: transparent !important;
-  border-color: var(--cky-fg) !important;
-  color: var(--cky-fg) !important;
-}
-
-.cky-btn-reject:hover {
-  background: var(--cky-fg) !important;
-  border-color: var(--cky-fg) !important;
-  color: #fff !important;
-}
-
+.cky-btn-reject,
+.cky-btn-reject-all,
 .cky-btn-customize,
 .cky-btn-preferences {
-  background: transparent !important;
-  border-color: var(--cky-line) !important;
-  color: var(--cky-fg) !important;
+  background-color: transparent !important;
+  border-color: var(--cky-live-y) !important;
+  color: var(--cky-live-y) !important;
 }
 
-.cky-btn-customize:hover,
-.cky-btn-preferences:hover {
-  background: var(--cky-paper) !important;
-  border-color: var(--cky-fg) !important;
+.cky-btn-save-preferences {
+  background-color: var(--cky-live-y) !important;
+  border-color: var(--cky-live-y) !important;
+  color: var(--cky-live-on-y) !important;
 }
 
-/* Preference center primary actions */
-.cky-btn-accept-all,
-.cky-btn-reject-all,
-.cky-preference-center .cky-btn-accept {
-  background: var(--cky-y) !important;
-  border-color: var(--cky-y) !important;
-  color: var(--cky-on-y) !important;
-}
-
-.cky-btn-accept-all:hover,
-.cky-btn-reject-all:hover,
-.cky-preference-center .cky-btn-accept:hover {
-  background: var(--cky-fg) !important;
-  border-color: var(--cky-fg) !important;
-  color: #fff !important;
-}
-
-.cky-btn-reject-all {
-  background: transparent !important;
-  border-color: var(--cky-fg) !important;
-  color: var(--cky-fg) !important;
-}
-
-.cky-btn-reject-all:hover {
-  background: var(--cky-fg) !important;
-  color: #fff !important;
-}
-
-.cky-btn-save-preferences,
-.cky-prefrence-btn-wrapper .cky-btn:last-child {
-  background: var(--cky-fg) !important;
-  border-color: var(--cky-fg) !important;
-  color: #fff !important;
-}
-
-.cky-btn-save-preferences:hover {
-  background: var(--cky-y) !important;
-  border-color: var(--cky-y) !important;
-  color: var(--cky-on-y) !important;
-}
-
-/* —— Preference center modal —— */
+/* —— Preference center —— */
 .cky-modal,
 .cky-preference-center,
 .cky-modal-wrapper .cky-preference-center {
-  background: var(--cky-paper) !important;
-  border: 1px solid var(--cky-line) !important;
-  border-radius: var(--cky-radius) !important;
-  box-shadow: 0 16px 48px rgb(10 8 6 / 0.18) !important;
-  font-family: var(--cky-display) !important;
-  color: var(--cky-fg) !important;
+  background-color: var(--cky-live-bg) !important;
+  border-color: var(--cky-live-border) !important;
+  color: var(--cky-live-text) !important;
+  border-radius: var(--cky-live-radius) !important;
 }
 
 .cky-preference-header,
-.cky-modal-header,
 .cky-preference-title-wrapper {
-  border-bottom: 1px solid var(--cky-line) !important;
-  background: var(--cky-bg) !important;
+  border-color: var(--cky-live-border) !important;
+  background-color: var(--cky-live-bg) !important;
 }
 
 .cky-preference-title,
-.cky-modal-title {
-  font-family: var(--cky-display) !important;
-  font-weight: 720 !important;
-  letter-spacing: -0.02em !important;
-  color: var(--cky-fg) !important;
+.cky-modal-title,
+.cky-preference-content-wrapper,
+.cky-accordion-header-des,
+.cky-accordion-btn {
+  color: var(--cky-live-text) !important;
 }
 
-.cky-preference-body-wrapper,
-.cky-modal-content,
-.cky-accordion,
-.cky-accordion-item,
-.cky-accordion-header,
-.cky-accordion-header-des {
-  color: var(--cky-dim) !important;
-  font-family: var(--cky-display) !important;
+.cky-accordion {
+  border-color: var(--cky-live-border) !important;
 }
 
-.cky-accordion-item {
-  border: 1px solid var(--cky-line) !important;
-  border-radius: var(--cky-radius) !important;
-  background: var(--cky-bg) !important;
-  margin-bottom: 10px !important;
+.cky-audit-table {
+  background-color: var(--cky-live-audit) !important;
+  border-color: var(--cky-live-audit-border) !important;
+  color: var(--cky-live-text) !important;
+  border-radius: var(--cky-live-radius) !important;
 }
 
-.cky-accordion-btn,
-.cky-accordion-header .cky-accordion-chevron {
-  color: var(--cky-fg) !important;
+.cky-show-desc-btn,
+.cky-preference-content-wrapper .cky-show-desc-btn {
+  color: var(--cky-live-y) !important;
+  background: transparent !important;
 }
 
 .cky-always-active {
-  font-family: var(--cky-mono) !important;
-  font-size: 10px !important;
-  letter-spacing: 0.14em !important;
-  text-transform: uppercase !important;
-  color: var(--cky-dim) !important;
+  color: #008000 !important;
 }
 
-.cky-show-desc-btn {
-  color: var(--cky-fg) !important;
-  text-decoration: underline !important;
+.cky-footer-shadow {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #ffffff 100%) !important;
 }
 
-.cky-cookie-des-table,
-.cky-cookie-des-table th,
-.cky-cookie-des-table td {
-  border-color: var(--cky-line) !important;
-  color: var(--cky-dim) !important;
-  font-size: 13px !important;
-}
-
-.cky-modal-close-btn,
-.cky-preference-close {
-  color: var(--cky-fg) !important;
-  opacity: 0.7;
-}
-
-.cky-modal-close-btn:hover,
-.cky-preference-close:hover {
-  opacity: 1;
-  color: var(--cky-ink) !important;
+.cky-prefrence-btn-wrapper,
+.cky-footer-wrapper {
+  border-color: var(--cky-live-border) !important;
 }
 
 /* —— Toggles —— */
-.cky-switch input:checked + .cky-slider {
-  background: var(--cky-y) !important;
+.cky-switch input[type='checkbox'] {
+  background: var(--cky-live-toggle-off) !important;
 }
 
-.cky-switch .cky-slider {
-  background: var(--cky-line) !important;
+.cky-switch input[type='checkbox']:checked {
+  background: var(--cky-live-y) !important;
 }
 
-.cky-switch .cky-slider::before {
-  background: #fff !important;
-}
-
-.cky-switch input:checked + .cky-slider::before {
-  background: var(--cky-on-y) !important;
-}
-
-/* —— Revisit consent button —— */
-.cky-btn-revisit-wrapper,
-.cky-revisit-wrapper {
-  right: 16px !important;
-  bottom: 16px !important;
-}
-
-.cky-btn-revisit {
-  background: var(--cky-ink) !important;
-  border: 1px solid rgb(255 210 0 / 0.5) !important;
-  color: var(--cky-y) !important;
-  border-radius: 50% !important;
-  box-shadow: 0 6px 20px rgb(10 8 6 / 0.25) !important;
-  transition:
-    background 0.25s,
-    color 0.25s,
-    border-color 0.25s !important;
-}
-
-.cky-btn-revisit:hover {
-  background: var(--cky-y) !important;
-  border-color: var(--cky-y) !important;
-  color: var(--cky-on-y) !important;
-}
-
-/* —— Footer / powered-by —— */
-.cky-footer-wrapper,
-.cky-consent-bar .cky-footer {
-  border-top: 1px solid var(--cky-line) !important;
-}
-
-.cky-footer-wrapper a,
-.cky-powered-by,
-.cky-audit-btn {
-  color: var(--cky-dim) !important;
-  font-size: 11px !important;
+/* —— Revisit —— */
+.cky-btn-revisit-wrapper {
+  background-color: var(--cky-live-y) !important;
 }
