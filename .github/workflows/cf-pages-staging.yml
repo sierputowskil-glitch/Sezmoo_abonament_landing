@@ -1,8 +1,8 @@
-name: Staging — Cloudflare Pages
+name: Staging — Cloudflare Pages preview
 
 on:
   push:
-    branches: [feat/astro-migration]
+    branches-ignore: [main]
   workflow_dispatch:
 
 jobs:
@@ -20,18 +20,20 @@ jobs:
       - run: npm ci
       - name: Astro check
         run: npm run check
-      - name: Build Astro (staging)
+      - name: Build Astro (preview / noindex)
         env:
-          PUBLIC_SITE_URL: https://abonament.websky.pro
+          # Canonical for preview builds; real URL is *.sezmoo-abonament.pages.dev
+          PUBLIC_SITE_URL: https://sezmoo-abonament.pages.dev
           PUBLIC_BASE_PATH: /
           PUBLIC_CONTACT_API_URL: /api/contact
-          # Cloudflare Turnstile invisible always-pass test key (safe for staging)
+          # Cloudflare Turnstile invisible always-pass test key
           PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000BB
           PUBLIC_ROBOTS: noindex
         run: npm run build
-      - name: Publish to Cloudflare Pages (staging)
+      - name: Publish preview to sezmoo-abonament
         uses: cloudflare/wrangler-action@v3
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=sezmoo-abonament-staging --branch=main --commit-dirty=true
+          apiToken: ${{ secrets.PROD_CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.PROD_CLOUDFLARE_ACCOUNT_ID }}
+          # Non-main branch → Pages preview (not production / abonament.sezmoo.com)
+          command: pages deploy dist --project-name=sezmoo-abonament --branch=${{ github.ref_name }} --commit-dirty=true

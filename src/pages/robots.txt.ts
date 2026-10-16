@@ -8,8 +8,8 @@ function siteOrigin(): string {
 function shouldDisallowAll(origin: string): boolean {
   return (
     PUBLIC_ROBOTS === 'noindex' ||
-    origin.includes('websky.pro') ||
-    origin.includes('abonament.websky.pro')
+    origin.includes('pages.dev') ||
+    origin.includes('websky.pro')
   );
 }
 

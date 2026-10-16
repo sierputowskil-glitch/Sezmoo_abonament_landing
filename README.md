@@ -24,32 +24,30 @@ npm run dev                      # static site only
 npm run build && npm run dev:functions   # site + /api/contact
 ```
 
-## Staging (Cloudflare Pages)
+## Staging (Pages preview on sezmoo.com account)
 
-- URL: **https://abonament.websky.pro**
-- Project: `sezmoo-abonament-staging`
-- **Noindex:** staging builds set `PUBLIC_SITE_URL=https://abonament.websky.pro` and `PUBLIC_ROBOTS=noindex` → meta `robots: noindex,follow` and `robots.txt` Disallow all
-- **Turnstile:** invisible always-pass test site key `1x00000000000000000000BB` (no real secret in the client)
-- **GTM:** off (default `PUBLIC_ENABLE_GTM=false`)
-- In `.env`: `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN` (never commit)
+Same project as production: **`sezmoo-abonament`**. Non-`main` branches deploy as **preview** (not `abonament.sezmoo.com`).
+
+- URL: `https://<hash>.sezmoo-abonament.pages.dev` (branch alias often `https://<branch>.sezmoo-abonament.pages.dev`)
+- **Noindex:** staging builds set `PUBLIC_ROBOTS=noindex` (+ auto for `*.pages.dev`)
+- **Turnstile:** invisible always-pass test site key `1x00000000000000000000BB`
+- **GTM:** off
+- In `.env`: `PROD_CLOUDFLARE_ACCOUNT_ID`, `PROD_CLOUDFLARE_API_TOKEN` (never commit)
 
 ```bash
 npm run build:staging    # local verify
-npm run deploy:staging   # build + wrangler pages deploy
+npm run deploy:staging   # build + wrangler pages deploy as preview for current git branch
 ```
 
-CI: `.github/workflows/cf-pages-staging.yml` (`workflow_dispatch` or push to `feat/astro-migration`) deploys with the same staging env. Needs secrets `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`.
-
-Then in CF dashboard (once): custom domain `abonament.websky.pro`, Turnstile hostname allowlist, secrets (`TURNSTILE_SECRET_KEY` if testing real verification, optional `SMTP_PASS`), KV binding `CONTACT_RATE_LIMIT`.
+CI: `.github/workflows/cf-pages-staging.yml` on push to any branch except `main` (or `workflow_dispatch`). Uses secrets `PROD_CLOUDFLARE_API_TOKEN`, `PROD_CLOUDFLARE_ACCOUNT_ID`.
 
 ## Deploy production (Cloudflare Pages)
 
-1. Create Pages project `sezmoo-abonament` and KV namespace `CONTACT_RATE_LIMIT` (update `wrangler.toml` IDs).
-2. Secrets: `TURNSTILE_SECRET_KEY`, `SMTP_PASS` (+ GH Actions: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `PUBLIC_TURNSTILE_SITE_KEY`).
-3. Custom domain: `abonament.sezmoo.com`.
-4. Turnstile: allow hostname `abonament.sezmoo.com`.
-5. Push to `main` → workflow `.github/workflows/cf-pages-prod.yml`.
+1. Project `sezmoo-abonament`, custom domain `abonament.sezmoo.com`, KV `CONTACT_RATE_LIMIT`.
+2. Secrets: `TURNSTILE_SECRET_KEY`, `SMTP_PASS` (+ GH: `PROD_CLOUDFLARE_API_TOKEN`, `PROD_CLOUDFLARE_ACCOUNT_ID`, `PROD_PUBLIC_TURNSTILE_SITE_KEY`).
+3. Turnstile: allow `abonament.sezmoo.com` (and `sezmoo.com` if shared widget).
+4. Push to `main` → `.github/workflows/cf-pages-prod.yml`.
 
 ## sezmoosite follow-up
 
-On the main site: `/abonament/` and `/en/retainer/` 301 → `https://abonament.sezmoo.com/` (done on `feat/astro-migration`).
+On the main site: `/abonament/` and `/en/retainer/` 301 → `https://abonament.sezmoo.com/`.

@@ -40,7 +40,10 @@ const turnstileKey = import.meta.env.DEV
 const canon = canonical || new URL(Astro.url.pathname, origin + '/').href;
 const ogImg = `${origin}/og-image.png`;
 const enableGtm = PUBLIC_ENABLE_GTM === true;
-const noindex = PUBLIC_ROBOTS === 'noindex' || origin.includes('websky.pro');
+const noindex =
+  PUBLIC_ROBOTS === 'noindex' ||
+  origin.includes('pages.dev') ||
+  origin.includes('websky.pro');
 const robotsContent = noindex ? 'noindex,follow' : 'index,follow';
 
 const lcpSizes = '(min-width: 981px) 55vw, 100vw';

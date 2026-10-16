@@ -12,15 +12,14 @@ compatibility_flags = ["nodejs_compat"]
 #   SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_FROM, SMTP_FROM_NAME, MAIL_TO
 
 [vars]
-SMTP_HOST = "smtp.cyberfolks.pl"
+SMTP_HOST = "s178.cyber-folks.pl"
 SMTP_PORT = "587"
 SMTP_USER = "no-reply@sezmoo.com"
 SMTP_FROM = "no-reply@sezmoo.com"
 SMTP_FROM_NAME = "SEZMOO"
-MAIL_TO = "biuro@sezmoo.com"
+MAIL_TO = "robert.warych@gmail.com"
 
-# Contact form rate limit — production account (sezmoo.com / ae8539…).
-# Staging (websky account) uses dashboard binding on sezmoo-abonament-staging.
+# Contact form rate limit — sezmoo.com account (prod + Pages preview share this).
 [[kv_namespaces]]
 binding = "CONTACT_RATE_LIMIT"
 id = "75ef0bc2ea3f4274b94b58ff076b27e5"

@@ -1,16 +1,15 @@
 #!/usr/bin/env node
 /**
- * Build + deploy Cloudflare Pages staging (abonament.websky.pro).
- * Requires in .env (gitignored): CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN
+ * Build + deploy a Cloudflare Pages *preview* on project sezmoo-abonament
+ * (sezmoo.com account). Does not touch production / abonament.sezmoo.com.
+ *
+ * Requires in .env: PROD_CLOUDFLARE_ACCOUNT_ID, PROD_CLOUDFLARE_API_TOKEN
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { resolve } from 'node:path';
 
-const PROJECT = 'sezmoo-abonament-staging';
-// Custom domains serve the project's production deployment → use main.
-const BRANCH = 'main';
-const DOMAIN = 'abonament.websky.pro';
+const PROJECT = 'sezmoo-abonament';
 
 function loadDotEnv(path) {
   if (!existsSync(path)) return;
@@ -33,14 +32,17 @@ function loadDotEnv(path) {
 
 loadDotEnv(resolve('.env'));
 
-const accountId = process.env.CLOUDFLARE_ACCOUNT_ID?.trim();
-const apiToken = process.env.CLOUDFLARE_API_TOKEN?.trim();
+const accountId = process.env.PROD_CLOUDFLARE_ACCOUNT_ID?.trim();
+const apiToken = process.env.PROD_CLOUDFLARE_API_TOKEN?.trim();
 if (!accountId || !apiToken) {
   console.error(
-    'deploy-staging: set CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN in .env',
+    'deploy-staging: set PROD_CLOUDFLARE_ACCOUNT_ID and PROD_CLOUDFLARE_API_TOKEN in .env',
   );
   process.exit(1);
 }
+
+process.env.CLOUDFLARE_ACCOUNT_ID = accountId;
+process.env.CLOUDFLARE_API_TOKEN = apiToken;
 
 function run(cmd, args, opts = {}) {
   console.log(`\n> ${cmd} ${args.join(' ')}`);
@@ -55,32 +57,21 @@ function run(cmd, args, opts = {}) {
   }
 }
 
-run('npm', ['run', 'build:staging']);
+const branch =
+  process.env.CF_PAGES_BRANCH?.trim() ||
+  spawnSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
+    encoding: 'utf8',
+  }).stdout?.trim() ||
+  'preview';
 
-// Create project only when missing (quiet check via list).
-const listed = spawnSync('npx', ['wrangler', 'pages', 'project', 'list'], {
-  encoding: 'utf8',
-  env: process.env,
-});
-const alreadyExists =
-  listed.status === 0 &&
-  typeof listed.stdout === 'string' &&
-  listed.stdout.includes(PROJECT);
-
-if (alreadyExists) {
-  console.log(`(project ${PROJECT} already exists — skip create)`);
-} else {
-  const created = spawnSync(
-    'npx',
-    ['wrangler', 'pages', 'project', 'create', PROJECT, '--production-branch=main'],
-    { encoding: 'utf8', env: process.env },
+if (branch === 'main' || branch === 'HEAD') {
+  console.error(
+    'deploy-staging: refusing to deploy as preview from main/detached HEAD — use production workflow or set CF_PAGES_BRANCH',
   );
-  if (created.status !== 0) {
-    console.log(`(project create skipped — ${PROJECT} may already exist)`);
-  } else {
-    console.log(`Created Pages project ${PROJECT}`);
-  }
+  process.exit(1);
 }
+
+run('npm', ['run', 'build:staging']);
 
 run('npx', [
   'wrangler',
@@ -88,16 +79,13 @@ run('npx', [
   'deploy',
   'dist',
   `--project-name=${PROJECT}`,
-  `--branch=${BRANCH}`,
+  `--branch=${branch}`,
   '--commit-dirty=true',
 ]);
 
 console.log(`
-Staging deploy done.
-Next (once):
-  1. CF Pages → ${PROJECT} → Custom domains → add ${DOMAIN}
-  2. Turnstile: allow hostname ${DOMAIN}
-  3. Secrets: wrangler pages secret put TURNSTILE_SECRET_KEY --project-name=${PROJECT}
-     (and SMTP_PASS if you want real mail on staging)
-  4. KV: bind CONTACT_RATE_LIMIT (see wrangler.toml / README)
+Preview deploy done (branch=${branch}).
+URL: https://<hash>.${PROJECT}.pages.dev
+     (alias often https://${branch.replace(/\//g, '-')}.${PROJECT}.pages.dev)
+Production stays on https://abonament.sezmoo.com
 `);
