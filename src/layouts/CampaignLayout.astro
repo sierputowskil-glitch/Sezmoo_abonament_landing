@@ -90,6 +90,14 @@ if (typeof jsonLd === 'string' && jsonLd.trim()) {
       ) : null
     }
     <meta property="og:url" content={canon} />
+    {
+      enableGtm && (
+        <>
+          <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
+          <link rel="preconnect" href="https://cdn-cookieyes.com" crossorigin />
+        </>
+      )
+    }
     <link rel="preload" href={archivoLatin} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={archivoLatinExt} as="font" type="font/woff2" crossorigin />
     <link
