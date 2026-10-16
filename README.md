@@ -7,6 +7,13 @@ Astro (static) + Cloudflare Pages Function for the contact form.
 - **Phone:** +48 739 260 450
 - **Legacy HTML/PHP:** branch `legacy/cyberfolks-html`
 
+## Structure
+
+- `src/assets/` — images via `astro:assets` (`<Image>` / `getImage`)
+- `src/content/` — typed content collections (faq, packages, works, team, quotes, clients)
+- `public/` — fixed URLs only (favicons, `og-image.png`, hero/scope videos)
+- `astro:env` — public env schema in `astro.config.mjs`
+
 ## Local
 
 ```bash
@@ -23,7 +30,7 @@ npm run build && npm run dev:functions   # site + /api/contact
 - Project: `sezmoo-abonament-staging`
 - **Noindex:** staging builds set `PUBLIC_SITE_URL=https://abonament.websky.pro` and `PUBLIC_ROBOTS=noindex` → meta `robots: noindex,follow` and `robots.txt` Disallow all
 - **Turnstile:** invisible always-pass test site key `1x00000000000000000000BB` (no real secret in the client)
-- **GTM:** off (`PUBLIC_ENABLE_GTM` empty)
+- **GTM:** off (default `PUBLIC_ENABLE_GTM=false`)
 - In `.env`: `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN` (never commit)
 
 ```bash

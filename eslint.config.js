@@ -11,7 +11,6 @@ export default [
       'public/assets/**',
       'assets/**',
       'scripts/**',
-      'src/data/**',
     ],
   },
   ...tseslint.configs.recommended,

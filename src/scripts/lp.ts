@@ -1,6 +1,6 @@
 /**
- * LP client: sticky mbar, data-cta → dataLayer lp_cta_click, YouTube data-yt-bg facade.
- * Bundled as a module from CampaignLayout (static CF Pages).
+ * LP client: sticky mbar, data-cta → dataLayer lp_cta_click,
+ * self-hosted muted background videos (no YouTube iframe).
  */
 
 type NetworkInformation = { saveData?: boolean };
@@ -46,53 +46,54 @@ function initPack60Preset(): void {
   });
 }
 
-function initHeroVideoReducedMotion(): void {
-  const v = document.querySelector('.hero__frame video');
+function playBgVideo(wrap: HTMLElement): void {
+  const v = wrap.querySelector('video');
   if (!(v instanceof HTMLVideoElement)) return;
-  const rm = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  if (rm || getSaveData()) {
-    v.removeAttribute('autoplay');
-    v.pause();
+  const lazy = v.getAttribute('data-src');
+  if (lazy && !v.getAttribute('src')) {
+    v.src = lazy;
+    v.removeAttribute('data-src');
+    v.load();
   }
+  void v.play().catch(() => {});
 }
 
-function mountYt(el: HTMLElement): void {
-  if (el.dataset.ytMounted) return;
-  el.dataset.ytMounted = '1';
-  const id = el.getAttribute('data-yt-id');
-  if (!id) return;
-  const title = el.getAttribute('data-yt-title') || 'YouTube';
-  const ifr = document.createElement('iframe');
-  ifr.src =
-    'https://www.youtube-nocookie.com/embed/' +
-    id +
-    '?autoplay=1&mute=1&controls=0&loop=1&playlist=' +
-    id +
-    '&playsinline=1&modestbranding=1&rel=0&iv_load_policy=3&disablekb=1&fs=0';
-  ifr.title = title;
-  ifr.allow = 'autoplay; encrypted-media; picture-in-picture';
-  ifr.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
-  ifr.tabIndex = -1;
-  ifr.setAttribute('aria-hidden', 'true');
-  el.appendChild(ifr);
-}
+/** Defer work until LCP is painted so hero MP4 does not contend with the poster. */
+function afterLcp(fn: () => void): void {
+  let done = false;
+  const run = () => {
+    if (done) return;
+    done = true;
+    const start = () => fn();
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(start, { timeout: 2000 });
+    } else {
+      setTimeout(start, 200);
+    }
+  };
 
-function whenIdle(fn: () => void): void {
-  const ric = (globalThis as typeof globalThis & {
-    requestIdleCallback?: (cb: IdleRequestCallback, opts?: IdleRequestOptions) => number;
-  }).requestIdleCallback;
-  if (typeof ric === 'function') {
-    ric(fn, { timeout: 2200 });
-  } else if (document.readyState === 'complete') {
-    setTimeout(fn, 1);
-  } else {
-    globalThis.addEventListener('load', () => setTimeout(fn, 1));
+  try {
+    if (performance.getEntriesByType('largest-contentful-paint').length > 0) {
+      run();
+      return;
+    }
+    const po = new PerformanceObserver((list) => {
+      if (!list.getEntries().length) return;
+      po.disconnect();
+      run();
+    });
+    po.observe({ type: 'largest-contentful-paint', buffered: true });
+  } catch {
+    /* PerformanceObserver / LCP unsupported */
   }
+
+  window.addEventListener('load', () => setTimeout(run, 300), { once: true });
+  setTimeout(run, 3000);
 }
 
-function whenNear(el: HTMLElement): void {
+function whenNear(el: HTMLElement, fn: () => void): void {
   if (!('IntersectionObserver' in window)) {
-    whenIdle(() => mountYt(el));
+    fn();
     return;
   }
   const io = new IntersectionObserver(
@@ -100,25 +101,36 @@ function whenNear(el: HTMLElement): void {
       entries.forEach((e) => {
         if (!e.isIntersecting) return;
         io.unobserve(e.target);
-        mountYt(e.target as HTMLElement);
+        fn();
       });
     },
-    { rootMargin: '240px 0px' },
+    { rootMargin: '160px 0px' },
   );
   io.observe(el);
 }
 
-function initYtFacade(): void {
+function initBgVideos(): void {
   const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  if (reduce || getSaveData()) return;
-  document.querySelectorAll<HTMLElement>('[data-yt-bg]').forEach((el) => {
-    if (el.getAttribute('data-yt-priority') === 'hero') whenIdle(() => mountYt(el));
-    else whenNear(el);
+  if (reduce || getSaveData()) {
+    document.querySelectorAll<HTMLVideoElement>('[data-bg-video] video').forEach((v) => {
+      v.removeAttribute('autoplay');
+      v.removeAttribute('data-src');
+      v.removeAttribute('src');
+      v.pause();
+    });
+    return;
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-bg-video]').forEach((wrap) => {
+    if (wrap.getAttribute('data-bg-video-priority') === 'hero') {
+      afterLcp(() => playBgVideo(wrap));
+      return;
+    }
+    whenNear(wrap, () => playBgVideo(wrap));
   });
 }
 
 initStickyMbar();
 initCtaTracking();
 initPack60Preset();
-initHeroVideoReducedMotion();
-initYtFacade();
+initBgVideos();

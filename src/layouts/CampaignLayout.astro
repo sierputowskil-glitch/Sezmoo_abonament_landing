@@ -1,9 +1,17 @@
 ---
 import '../styles/fonts.css';
 import '../styles/lp.css';
+import { getImage } from 'astro:assets';
 import archivoLatin from '@fontsource-variable/archivo/files/archivo-latin-standard-normal.woff2?url';
 import archivoLatinExt from '@fontsource-variable/archivo/files/archivo-latin-ext-standard-normal.woff2?url';
+import {
+  PUBLIC_CONTACT_API_URL,
+  PUBLIC_ENABLE_GTM,
+  PUBLIC_ROBOTS,
+  PUBLIC_TURNSTILE_SITE_KEY,
+} from 'astro:env/client';
 import { GTM_ID, siteOrigin } from '../lib/site';
+import showreelPoster from '../assets/abonament/showreel-poster-landscape.webp';
 
 interface Props {
   title: string;
@@ -24,24 +32,23 @@ const {
 } = Astro.props;
 
 const origin = siteOrigin();
-const contactApiRaw = import.meta.env.PUBLIC_CONTACT_API_URL;
-const contactApi =
-  contactApiRaw === undefined || contactApiRaw === null
-    ? '/api/contact'
-    : String(contactApiRaw);
+const contactApi = PUBLIC_CONTACT_API_URL || '/api/contact';
 const TURNSTILE_TEST_INVISIBLE = '1x00000000000000000000BB';
 const turnstileKey = import.meta.env.DEV
   ? TURNSTILE_TEST_INVISIBLE
-  : import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
+  : PUBLIC_TURNSTILE_SITE_KEY || '';
 const canon = canonical || new URL(Astro.url.pathname, origin + '/').href;
-const ogImg = `${origin}/assets/og-image.png`;
-const enableGtm = import.meta.env.PUBLIC_ENABLE_GTM === 'true';
-const noindex =
-  import.meta.env.PUBLIC_ROBOTS === 'noindex' || origin.includes('websky.pro');
+const ogImg = `${origin}/og-image.png`;
+const enableGtm = PUBLIC_ENABLE_GTM === true;
+const noindex = PUBLIC_ROBOTS === 'noindex' || origin.includes('websky.pro');
 const robotsContent = noindex ? 'noindex,follow' : 'index,follow';
-const lcpSrcset =
-  '/assets/optimized/lcp/showreel-poster-800.webp 800w, /assets/optimized/lcp/showreel-poster-1280.webp 1280w, /assets/optimized/lcp/showreel-poster-1920.webp 1920w';
-const lcpDefault = '/assets/optimized/lcp/showreel-poster-1280.webp';
+
+const lcpSizes = '(min-width: 981px) 55vw, 100vw';
+const lcpImage = await getImage({
+  src: showreelPoster,
+  widths: [800, 1280, 1920],
+  formats: ['webp'],
+});
 
 const jsonLdBlocks: string[] = [];
 if (typeof jsonLd === 'string' && jsonLd.trim()) {
@@ -56,9 +63,9 @@ if (typeof jsonLd === 'string' && jsonLd.trim()) {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
-    <link rel="icon" href="/assets/favicon.png" sizes="any" />
-    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.png" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="theme-color" content="#F5F3EF" />
     <meta property="og:image" content={ogImg} />
     <meta property="og:image:width" content="1200" />
@@ -85,9 +92,9 @@ if (typeof jsonLd === 'string' && jsonLd.trim()) {
     <link
       rel="preload"
       as="image"
-      href={lcpDefault}
-      imagesrcset={lcpSrcset}
-      imagesizes="(min-width: 981px) 55vw, 100vw"
+      href={lcpImage.src}
+      imagesrcset={lcpImage.srcSet.attribute}
+      imagesizes={lcpSizes}
       fetchpriority="high"
     />
     {jsonLdBlocks.map((block) => <script type="application/ld+json" set:html={block} />)}

@@ -1,3 +1,10 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+
+const works = (await getCollection('works')).sort((a, b) => a.data.order - b.data.order);
+---
+
 <section class="sec dark" aria-labelledby="works-h" style="padding-top:clamp(110px,11vw,150px)">
   <svg class="tear" fill="#F5F3EF" aria-hidden="true"><use href="#tear"></use></svg>
   <div class="shell">
@@ -6,14 +13,40 @@
       <p class="lead">Wideo, fotografia, grafika i&nbsp;kampanie – efekty pracy naszego zespołu.</p>
     </div>
     <ul class="works">
-      <li><a class="work" href="https://sezmoo.com/realizacja-doraco-hala-tvp/" data-cta="work-doraco-tvp"><div class="work__img"><img src="/assets/abonament/realizacja-doraco-tvp.webp" alt="DORACO – realizacja wideo dla TVP" width="900" height="674" loading="lazy" /><span class="work__tag">WIDEO</span></div><div class="work__meta"><h3>DORACO</h3><p>Realizacja dla TVP</p></div></a></li>
-      <li><a class="work" href="https://sezmoo.com/portfolio/" data-cta="work-audi-rs5"><div class="work__img"><img src="/assets/abonament/realizacja-audi-rs5.webp" alt="Audi RS5 – studyjna sesja zdjęciowa" width="900" height="600" loading="lazy" /><span class="work__tag">FOTO + WIDEO</span></div><div class="work__meta"><h3>Audi RS5</h3><p>Sesja studyjna</p></div></a></li>
-      <li><a class="work" href="https://sezmoo.com/realizacja-baltic-towers-rekrutacja/" data-cta="work-baltic-towers"><div class="work__img"><img src="/assets/abonament/realizacja-baltic-towers.webp" alt="Baltic Towers – fotografia produkcji przemysłowej" width="900" height="600" loading="lazy" /><span class="work__tag">FOTO + WIDEO</span></div><div class="work__meta"><h3>Baltic Towers</h3><p>Produkcja</p></div></a></li>
-      <li><a class="work" href="https://sezmoo.com/portfolio/" data-cta="work-rydzowka"><div class="work__img"><img src="/assets/abonament/yt-rydzowka.webp" alt="Rydzówka Resort – film reklamowy SEZMOO" width="960" height="540" loading="lazy" decoding="async" /><span class="work__tag">WIDEO</span></div><div class="work__meta"><h3>Rydzówka Resort</h3><p>Film reklamowy</p></div></a></li>
-      <li><a class="work" href="https://sezmoo.com/realizacja-soho-form/" data-cta="work-soho-form"><div class="work__img"><img src="/assets/abonament/realizacja-soho-form.webp" alt="Soho Form – branding i strona internetowa" width="900" height="506" loading="lazy" /><span class="work__tag">GRAFIKA</span></div><div class="work__meta"><h3>Soho Form</h3><p>Branding / WWW</p></div></a></li>
-      <li><a class="work" href="https://sezmoo.com/realizacja-primespot/" data-cta="work-primespot"><div class="work__img" style="background:#0f2238"><img style="object-fit:contain" src="/assets/abonament/realizacja-primespot.webp" alt="PrimeSpot Przystań Jurata – kreacje kampanii Meta Ads SEZMOO" width="1200" height="628" loading="lazy" decoding="async" /><span class="work__tag">KAMPANIA</span></div><div class="work__meta"><h3>PrimeSpot</h3><p>Kampania Meta Ads / kreacje</p></div></a></li>
+      {
+        works.map((w) => {
+          const d = w.data;
+          return (
+            <li>
+              <a class="work" href={d.href} data-cta={d.ctaId}>
+                <div class="work__img" style={d.bg ? `background:${d.bg}` : undefined}>
+                  <Image
+                    src={d.image}
+                    alt={d.alt}
+                    widths={[480, 720, 960]}
+                    sizes="(min-width: 900px) 30vw, 80vw"
+                    format="webp"
+                    loading="lazy"
+                    decoding="async"
+                    style={d.contain ? 'object-fit:contain' : undefined}
+                  />
+                  <span class="work__tag">{d.tag}</span>
+                </div>
+                <div class="work__meta">
+                  <h3>{d.title}</h3>
+                  <p>{d.subtitle}</p>
+                </div>
+              </a>
+            </li>
+          );
+        })
+      }
     </ul>
     <p class="mono swipe" aria-hidden="true">Przesuń →</p>
-    <div class="works__more"><a class="btn btn--ghost-y btn--xl" href="https://sezmoo.com/portfolio/" data-cta="portfolio">Zobacz portfolio <svg aria-hidden="true"><use href="#i-arrow"></use></svg></a></div>
+    <div class="works__more"
+      ><a class="btn btn--ghost-y btn--xl" href="https://sezmoo.com/portfolio/" data-cta="portfolio"
+        >Zobacz portfolio <svg aria-hidden="true"><use href="#i-arrow"></use></svg></a
+      ></div
+    >
   </div>
 </section>

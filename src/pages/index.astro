@@ -18,7 +18,7 @@ import Faq from '../components/Faq.astro';
 import Contact from '../components/Contact.astro';
 import Footer from '../components/Footer.astro';
 import MobileBar from '../components/MobileBar.astro';
-import { jsonLd } from '../data/schema';
+import { buildJsonLd } from '../lib/jsonLd';
 
 const title = 'Abonament na wideo, foto i grafikę – wsparcie marketingu | SEZMOO';
 const description =
@@ -26,6 +26,7 @@ const description =
 const ogTitle = 'Kompleksowe wsparcie dla marketingu – abonament SEZMOO';
 const ogDescription =
   'Wideo, fotografia, grafika i content w jednej miesięcznej puli godzin. Pakiety 30h, 60h, 120h i Custom. Stały zespół SEZMOO.';
+const jsonLd = await buildJsonLd();
 ---
 
 <CampaignLayout

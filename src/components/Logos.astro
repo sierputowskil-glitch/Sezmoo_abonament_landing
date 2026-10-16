@@ -1,19 +1,8 @@
 ---
-const logos = [
-  { src: '/assets/clients/audi-grupa-plichta.png', alt: 'Audi Grupa Plichta', k: '0.85' },
-  { src: '/assets/clients/byd-plichta.png', alt: 'BYD Plichta', k: '0.62' },
-  { src: '/assets/clients/netto.svg', alt: 'Netto', k: '1.05' },
-  { src: '/assets/clients/omoda-jaecoo.svg', alt: 'Omoda & Jaecoo', k: '1.20' },
-  { src: '/assets/clients/cherry.svg', alt: 'Chery', k: '0.50' },
-  { src: '/assets/clients/vls.svg', alt: 'VLS', k: '1.27' },
-  { src: '/assets/clients/doraco.svg', alt: 'Doraco', k: '0.71' },
-  { src: '/assets/clients/k2.svg', alt: 'K2', k: '1.70' },
-  { src: '/assets/clients/baltic-towers.svg', alt: 'Baltic Towers', k: '1.70' },
-  { src: '/assets/clients/q4rail.svg', alt: 'Q4rail', k: '0.92' },
-  { src: '/assets/clients/crt.svg', alt: 'CRT', k: '1.25' },
-  { src: '/assets/clients/2track.svg', alt: '2track', k: '1.50' },
-  { src: '/assets/clients/life-dom-seniora.svg', alt: 'Life Dom Seniora', k: '1.21' },
-];
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+
+const logos = (await getCollection('clients')).sort((a, b) => a.data.order - b.data.order);
 ---
 
 <section class="logos" aria-labelledby="logos-h">
@@ -27,12 +16,15 @@ const logos = [
         {
           logos.map((logo) => (
             <div class="logo-cellc">
-              <img
+              <Image
                 class="logo-mark"
-                style={`--k:${logo.k}`}
-                src={logo.src}
-                alt={logo.alt}
+                style={`--k:${logo.data.scale}`}
+                src={logo.data.image}
+                alt={logo.data.alt}
+                width={logo.data.width}
+                height={logo.data.height}
                 loading="lazy"
+                decoding="async"
               />
             </div>
           ))
@@ -40,12 +32,15 @@ const logos = [
         {
           logos.map((logo) => (
             <div class="logo-cellc" aria-hidden="true">
-              <img
+              <Image
                 class="logo-mark"
-                style={`--k:${logo.k}`}
-                src={logo.src}
+                style={`--k:${logo.data.scale}`}
+                src={logo.data.image}
                 alt=""
+                width={logo.data.width}
+                height={logo.data.height}
                 loading="lazy"
+                decoding="async"
               />
             </div>
           ))

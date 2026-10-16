@@ -22,9 +22,6 @@ config.local.php
 logs/
 vendor/
 
-# Copied from assets/ by npm run sync:assets
-/public/assets/
-
 # Dependencies and build
 node_modules/
 dist/

@@ -1,0 +1,10 @@
+{
+  "hours": "Custom",
+  "title": "Zakres dopasowany do&nbsp;potrzeb",
+  "description": "Dla działów marketingu, które potrzebują niestandardowej liczby godzin, większej dostępności specjalistów lub indywidualnego modelu współpracy. Wspólnie ustalamy zakres usług, miesięczną pulę godzin, priorytety i&nbsp;sposób organizacji prac.",
+  "priceLabel": "Indywidualny zakres",
+  "priceNote": "Indywidualna wycena",
+  "custom": true,
+  "order": 3,
+  "schemaDescription": "Zakres dopasowany do potrzeb: indywidualna pula godzin, zakres usług i wycena."
+}

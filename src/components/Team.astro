@@ -1,78 +1,8 @@
 ---
-const members = [
-  {
-    img: '/assets/abonament/team/maciej-tyma.webp',
-    alt: 'Maciej Tyma',
-    w: 600,
-    h: 466,
-    no: 'T·01',
-    name: 'Maciej Tyma',
-    role: 'Founder · Fotograf i producent wideo',
-  },
-  {
-    img: '/assets/abonament/team/hubert-fudala.webp',
-    alt: 'Hubert Fudała',
-    w: 600,
-    h: 457,
-    no: 'T·02',
-    name: 'Hubert Fudała',
-    role: 'Operator kamery i montażysta',
-  },
-  {
-    img: '/assets/abonament/team/radoslaw-schenk.webp',
-    alt: 'Radosław Schenk',
-    w: 600,
-    h: 466,
-    no: 'T·03',
-    name: 'Radosław Schenk',
-    role: 'Operator kamery i montażysta',
-  },
-  {
-    img: '/assets/abonament/team/kamil-mroz.webp',
-    alt: 'Kamil Mróz',
-    w: 600,
-    h: 457,
-    no: 'T·04',
-    name: 'Kamil Mróz',
-    role: 'Operator kamery i montażysta',
-  },
-  {
-    img: '/assets/abonament/team/olga-urbanska.webp',
-    alt: 'Olga Urbańska',
-    w: 600,
-    h: 456,
-    no: 'T·05',
-    name: 'Olga Urbańska',
-    role: 'Project & Digital Marketing Manager',
-  },
-  {
-    img: '/assets/abonament/team/lukasz-sierputowski.webp',
-    alt: 'Łukasz Sierputowski',
-    w: 600,
-    h: 457,
-    no: 'T·06',
-    name: 'Łukasz Sierputowski',
-    role: 'Grafik, web designer',
-  },
-  {
-    img: '/assets/abonament/team/pawel-wyszomirski.webp',
-    alt: 'Paweł Wyszomirski',
-    w: 600,
-    h: 457,
-    no: 'T·07',
-    name: 'Paweł Wyszomirski',
-    role: 'Reżyser',
-  },
-  {
-    img: '/assets/abonament/team/dakar.webp',
-    alt: 'Dakar, pies studia SEZMOO',
-    w: 600,
-    h: 456,
-    no: 'T·08',
-    name: 'Dakar',
-    role: 'Ochrona',
-  },
-];
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+
+const members = (await getCollection('team')).sort((a, b) => a.data.order - b.data.order);
 ---
 
 <section class="sec dark team-sec" aria-labelledby="team-h" style="padding-top:clamp(110px,11vw,150px)">
@@ -87,12 +17,20 @@ const members = [
         members.map((m) => (
           <li class="tm">
             <div class="tm__ph">
-              <img src={m.img} alt={m.alt} width={m.w} height={m.h} loading="lazy" />
+              <Image
+                src={m.data.image}
+                alt={m.data.alt}
+                widths={[300, 600]}
+                sizes="(min-width: 900px) 22vw, 45vw"
+                format="webp"
+                loading="lazy"
+                decoding="async"
+              />
             </div>
             <div class="tm__b">
-              <span class="tm__no">{m.no}</span>
-              <h3>{m.name}</h3>
-              <p class="tm__r">{m.role}</p>
+              <span class="tm__no">{m.data.no}</span>
+              <h3>{m.data.name}</h3>
+              <p class="tm__r">{m.data.role}</p>
             </div>
           </li>
         ))

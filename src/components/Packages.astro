@@ -1,21 +1,66 @@
+---
+import { getCollection } from 'astro:content';
+
+const packs = (await getCollection('packages')).sort((a, b) => a.data.order - b.data.order);
+---
+
 <section class="sec" id="pakiety" aria-labelledby="packs-h">
   <div class="shell">
     <div class="sec__head">
       <div>
         <p class="mono" style="margin-bottom:18px">Miesięczna pula godzin</p>
-        <h2 class="h2" id="packs-h"><span class="em">Elastyczny abonament.</span> Zakres zależny od&nbsp;Ciebie.</h2>
+        <h2 class="h2" id="packs-h"
+          ><span class="em">Elastyczny abonament.</span> Zakres zależny od&nbsp;Ciebie.</h2
+        >
       </div>
-      <p class="lead">Z&nbsp;jednej puli godzin korzystasz zależnie od&nbsp;bieżących potrzeb: raz wideo, raz sesja fotograficzna, innym razem grafiki lub content do&nbsp;kanałów marki. Priorytety planujemy wspólnie, a&nbsp;zespół pozostaje ten sam.</p>
+      <p class="lead"
+        >Z&nbsp;jednej puli godzin korzystasz zależnie od&nbsp;bieżących potrzeb: raz wideo, raz sesja
+        fotograficzna, innym razem grafiki lub content do&nbsp;kanałów marki. Priorytety planujemy
+        wspólnie, a&nbsp;zespół pozostaje ten sam.</p
+      >
     </div>
     <ul class="packs">
-      <li class="pack"><p class="pack__h">30h</p><div><h3 class="pack__t">Na bieżące potrzeby</h3><p class="pack__d">Dla marek, które potrzebują regularnych grafik, krótkich materiałów wideo lub wybranych sesji i&nbsp;aktualizacji contentu.</p></div><div class="pack__p"><span class="mono">Miesięcznie</span><b>Wycena indywidualna</b></div></li>
-      <li class="pack pack--hi pack--top"><span class="pack__badge">Najczęściej wybierany</span><p class="pack__h">60h</p><div><h3 class="pack__t">Na regularną produkcję</h3><p class="pack__d">Dla marketingu prowadzącego stałe działania: rolki, sesje foto, projekty graficzne i&nbsp;materiały do&nbsp;komunikacji.</p></div><div class="pack__p"><span class="mono">Miesięcznie</span><b>Wycena indywidualna</b><a class="btn btn--ink pack__cta" href="#kontakt" data-cta="pack-60">Chcę pakiet 60h <svg aria-hidden="true"><use href="#i-arrow"></use></svg></a></div></li>
-      <li class="pack"><p class="pack__h">120h</p><div><h3 class="pack__t">Na wiele równoległych działań</h3><p class="pack__d">Dla zespołów marketingu, które realizują kilka projektów jednocześnie i&nbsp;potrzebują większej dostępności specjalistów.</p></div><div class="pack__p"><span class="mono">Miesięcznie</span><b>Wycena indywidualna</b></div></li>
-      <li class="pack pack--custom"><p class="pack__h">Custom</p><div><h3 class="pack__t">Zakres dopasowany do&nbsp;potrzeb</h3><p class="pack__d">Dla działów marketingu, które potrzebują niestandardowej liczby godzin, większej dostępności specjalistów lub indywidualnego modelu współpracy. Wspólnie ustalamy zakres usług, miesięczną pulę godzin, priorytety i&nbsp;sposób organizacji prac.</p></div><div class="pack__p"><span class="mono">Indywidualny zakres</span><b>Indywidualna wycena</b></div></li>
+      {
+        packs.map((p) => {
+          const d = p.data;
+          const cls = [
+            'pack',
+            d.featured ? 'pack--hi pack--top' : '',
+            d.custom ? 'pack--custom' : '',
+          ]
+            .filter(Boolean)
+            .join(' ');
+          return (
+            <li class={cls}>
+              {d.badge && <span class="pack__badge">{d.badge}</span>}
+              <p class="pack__h">{d.hours}</p>
+              <div>
+                <h3 class="pack__t" set:html={d.title} />
+                <p class="pack__d" set:html={d.description} />
+              </div>
+              <div class="pack__p">
+                <span class="mono">{d.priceLabel}</span>
+                <b>{d.priceNote}</b>
+                {d.ctaLabel && d.ctaId && (
+                  <a class="btn btn--ink pack__cta" href="#kontakt" data-cta={d.ctaId}>
+                    {d.ctaLabel}{' '}
+                    <svg aria-hidden="true"><use href="#i-arrow"></use></svg>
+                  </a>
+                )}
+              </div>
+            </li>
+          );
+        })
+      }
     </ul>
     <div class="packs__foot">
-      <p>Potrzebujesz innej liczby godzin lub niestandardowego zakresu? Wybierz Custom – dopasujemy współpracę do&nbsp;Twojego marketingu.</p>
-      <a class="btn btn--y btn--xl" href="#kontakt" data-cta="packages">Dobierzmy zakres współpracy <svg aria-hidden="true"><use href="#i-arrow"></use></svg></a>
+      <p
+        >Potrzebujesz innej liczby godzin lub niestandardowego zakresu? Wybierz Custom – dopasujemy
+        współpracę do&nbsp;Twojego marketingu.</p
+      >
+      <a class="btn btn--y btn--xl" href="#kontakt" data-cta="packages"
+        >Dobierzmy zakres współpracy <svg aria-hidden="true"><use href="#i-arrow"></use></svg></a
+      >
     </div>
   </div>
 </section>

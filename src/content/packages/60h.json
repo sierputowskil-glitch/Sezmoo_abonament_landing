@@ -1,0 +1,13 @@
+{
+  "hours": "60h",
+  "title": "Na regularną produkcję",
+  "description": "Dla marketingu prowadzącego stałe działania: rolki, sesje foto, projekty graficzne i&nbsp;materiały do&nbsp;komunikacji.",
+  "priceLabel": "Miesięcznie",
+  "priceNote": "Wycena indywidualna",
+  "featured": true,
+  "badge": "Najczęściej wybierany",
+  "ctaLabel": "Chcę pakiet 60h",
+  "ctaId": "pack-60",
+  "order": 1,
+  "schemaDescription": "Na regularną produkcję: rolki, sesje foto, projekty graficzne i materiały do komunikacji."
+}

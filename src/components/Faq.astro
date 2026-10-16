@@ -1,39 +1,7 @@
 ---
-const items = [
-  {
-    q: 'Ile kosztuje abonament?',
-    a: 'Cena zależy od&nbsp;miesięcznej puli godzin i&nbsp;zakresu działań. Po krótkiej rozmowie przedstawimy konkretną propozycję i&nbsp;zasady rozliczenia.',
-    open: true,
-  },
-  {
-    q: 'Czy mogę korzystać z&nbsp;różnych usług w&nbsp;ramach jednego abonamentu?',
-    a: 'Tak. Pula godzin nie&nbsp;jest przypisana tylko do&nbsp;wideo, fotografii czy grafiki. Możesz zmieniać proporcje prac między miesiącami, zgodnie z&nbsp;ustalonym planem i&nbsp;zakresem usług.',
-  },
-  {
-    q: 'Na czym polega opcja Custom?',
-    a: 'Custom to&nbsp;abonament przygotowywany indywidualnie – bez z&nbsp;góry narzuconej puli godzin. Ustalamy razem potrzeby działu marketingu, zakres usług, dostępność specjalistów i&nbsp;miesięczny budżet. Następnie przedstawiamy dopasowaną propozycję współpracy.',
-  },
-  {
-    q: 'Jak współpracujecie z&nbsp;naszym działem marketingu?',
-    a: 'Twój zespół odpowiada za&nbsp;cele, komunikację i&nbsp;priorytety. SEZMOO zapewnia produkcyjne i&nbsp;kreatywne wsparcie: od&nbsp;zaplanowania realizacji po&nbsp;gotowe materiały. Pracujemy razem z&nbsp;marketingiem, nie&nbsp;zamiast niego.',
-  },
-  {
-    q: 'Czy abonament wymaga długiej umowy?',
-    a: 'Współpraca najlepiej działa w&nbsp;stałym rytmie. Na start proponujemy 3-miesięczny okres próbny, a&nbsp;szczegółowe warunki i&nbsp;minimalny czas trwania umowy ustalamy indywidualnie.',
-  },
-  {
-    q: 'Skąd wiem, ile godzin wykorzystaliśmy?',
-    a: 'W&nbsp;ClickUp widzisz postęp zadań. Po zakończeniu miesiąca otrzymujesz zestawienie wykonanych prac i&nbsp;godzin, dołączone do&nbsp;rozliczenia.',
-  },
-  {
-    q: 'Czy mogę zmieniać priorytety w&nbsp;trakcie współpracy?',
-    a: 'Tak. Plan ustalamy wspólnie, a&nbsp;zakres działań możemy dopasowywać do&nbsp;aktualnych potrzeb i&nbsp;dostępnej puli godzin.',
-  },
-  {
-    q: 'Czy realizujecie projekty poza Trójmiastem?',
-    a: 'Tak. Mamy bazę w&nbsp;Gdańsku, a&nbsp;produkcje realizujemy w&nbsp;całej Polsce i&nbsp;za granicą.',
-  },
-];
+import { getCollection } from 'astro:content';
+
+const items = (await getCollection('faq')).sort((a, b) => a.data.order - b.data.order);
 ---
 
 <section class="sec" aria-labelledby="faq-h" style="padding-top:clamp(110px,11vw,150px)">
@@ -43,12 +11,12 @@ const items = [
     <div class="faq__list">
       {
         items.map((item) => (
-          <details open={item.open || undefined}>
+          <details open={item.data.open || undefined}>
             <summary>
-              <Fragment set:html={item.q} />
+              <Fragment set:html={item.data.question} />
               <svg aria-hidden="true"><use href="#i-plus"></use></svg>
             </summary>
-            <p set:html={item.a} />
+            <p set:html={item.data.answer} />
           </details>
         ))
       }

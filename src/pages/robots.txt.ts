@@ -1,14 +1,13 @@
 import type { APIRoute } from 'astro';
-
-const DEFAULT_SITE = 'https://abonament.sezmoo.com';
+import { PUBLIC_ROBOTS, PUBLIC_SITE_URL } from 'astro:env/client';
 
 function siteOrigin(): string {
-  return (import.meta.env.PUBLIC_SITE_URL || DEFAULT_SITE).replace(/\/$/, '');
+  return PUBLIC_SITE_URL.replace(/\/$/, '');
 }
 
 function shouldDisallowAll(origin: string): boolean {
   return (
-    import.meta.env.PUBLIC_ROBOTS === 'noindex' ||
+    PUBLIC_ROBOTS === 'noindex' ||
     origin.includes('websky.pro') ||
     origin.includes('abonament.websky.pro')
   );

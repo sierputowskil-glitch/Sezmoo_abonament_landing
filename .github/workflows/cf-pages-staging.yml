@@ -27,7 +27,6 @@ jobs:
           PUBLIC_CONTACT_API_URL: /api/contact
           # Cloudflare Turnstile invisible always-pass test key (safe for staging)
           PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000BB
-          PUBLIC_ENABLE_GTM: ''
           PUBLIC_ROBOTS: noindex
         run: npm run build
       - name: Publish to Cloudflare Pages (staging)

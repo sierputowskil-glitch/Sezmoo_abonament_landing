@@ -1,3 +1,15 @@
+---
+import { Image, getImage } from 'astro:assets';
+import showreelPoster from '../assets/abonament/showreel-poster-landscape.webp';
+
+const lcpSizes = '(min-width: 981px) 55vw, 100vw';
+const poster = await getImage({
+  src: showreelPoster,
+  width: 1280,
+  format: 'webp',
+});
+---
+
 <section class="hero" id="top">
   <div class="shell hero__grid">
     <div class="hero__copy">
@@ -43,25 +55,28 @@
       </div>
     </div>
     <div class="hero__media">
-      <div
-        class="hero__frame"
-        data-yt-bg
-        data-yt-id="YkWCkew6OGg"
-        data-yt-priority="hero"
-        data-yt-title="SEZMOO showreel – tak może wyglądać kreatywne zaplecze Twojego marketingu"
-        data-yt-poster="/assets/optimized/lcp/showreel-poster-1280.webp"
-      >
-        <img
-          src="/assets/optimized/lcp/showreel-poster-1280.webp"
-          srcset="/assets/optimized/lcp/showreel-poster-800.webp 800w, /assets/optimized/lcp/showreel-poster-1280.webp 1280w, /assets/optimized/lcp/showreel-poster-1920.webp 1920w"
-          sizes="(min-width: 981px) 55vw, 100vw"
+      <div class="hero__frame" data-bg-video data-bg-video-priority="hero">
+        <Image
+          src={showreelPoster}
+          widths={[800, 1280, 1920]}
+          sizes={lcpSizes}
+          format="webp"
           alt=""
           aria-hidden="true"
           fetchpriority="high"
-          width="1280"
-          height="720"
-          decoding="async"
+          decoding="sync"
+          width={1280}
+          height={720}
         />
+        <video
+          muted
+          loop
+          playsinline
+          preload="none"
+          aria-hidden="true"
+          data-src="/assets/abonament/video/showreel.mp4"
+          poster={poster.src}
+        ></video>
       </div>
       <span class="hero__tc"><span class="dot"></span>SEZMOO · SHOWREEL 2026</span>
       <svg class="hero__tear" fill="#F5F3EF" aria-hidden="true"><use href="#tear"></use></svg>

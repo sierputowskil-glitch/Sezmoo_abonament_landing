@@ -8,11 +8,8 @@
     "node": ">=22"
   },
   "scripts": {
-    "sync:assets": "node scripts/sync-public-assets.mjs",
     "optimize:lcp": "node scripts/optimize-lcp-heroes.mjs",
-    "predev": "npm run sync:assets",
     "dev": "astro dev",
-    "prebuild": "npm run sync:assets",
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
@@ -20,7 +17,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "dev:functions": "wrangler pages dev ./dist --compatibility-date=2026-10-15 --compatibility-flags=nodejs_compat",
-    "build:staging": "PUBLIC_SITE_URL=https://abonament.websky.pro PUBLIC_BASE_PATH=/ PUBLIC_CONTACT_API_URL=/api/contact PUBLIC_TURNSTILE_SITE_KEY=1x00000000000000000000BB PUBLIC_ENABLE_GTM= PUBLIC_ROBOTS=noindex npm run build",
+    "build:staging": "PUBLIC_SITE_URL=https://abonament.websky.pro PUBLIC_BASE_PATH=/ PUBLIC_CONTACT_API_URL=/api/contact PUBLIC_TURNSTILE_SITE_KEY=1x00000000000000000000BB PUBLIC_ROBOTS=noindex npm run build",
     "deploy:staging": "node scripts/deploy-staging.mjs",
     "postinstall": "node scripts/patch-cloudflare-smtp.mjs"
   },
