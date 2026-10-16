@@ -1,6 +1,5 @@
 // @ts-check
 import { defineConfig, envField } from 'astro/config';
-import sitemap from '@astrojs/sitemap';
 
 /**
  * PUBLIC_SITE_URL — canonical origin, e.g. https://abonament.sezmoo.com
@@ -65,5 +64,4 @@ export default defineConfig({
       }),
     },
   },
-  integrations: [sitemap()],
 });

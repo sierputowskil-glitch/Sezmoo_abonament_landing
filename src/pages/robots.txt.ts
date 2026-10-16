@@ -18,7 +18,7 @@ export const GET: APIRoute = () => {
 
   const body = shouldDisallowAll(origin)
     ? 'User-agent: *\nDisallow: /\n'
-    : `User-agent: *\nAllow: /\n\nSitemap: ${origin}/sitemap-index.xml\n`;
+    : `User-agent: *\nAllow: /\n\nSitemap: ${origin}/sitemap.xml\n`;
 
   return new Response(body, {
     headers: {
