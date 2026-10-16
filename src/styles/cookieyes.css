@@ -173,3 +173,9 @@
 .cky-btn-revisit-wrapper {
   background-color: var(--cky-live-y) !important;
 }
+
+/* —— Hide CookieYes branding —— */
+[data-cky-tag='powered-by'],
+[data-cky-tag='detail-powered-by'] {
+  display: none !important;
+}
