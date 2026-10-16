@@ -19,8 +19,9 @@ SMTP_FROM = "no-reply@sezmoo.com"
 SMTP_FROM_NAME = "SEZMOO"
 MAIL_TO = "biuro@sezmoo.com"
 
-# Contact form rate limit (same account KV as sezmoosite).
+# Contact form rate limit — production account (sezmoo.com / ae8539…).
+# Staging (websky account) uses dashboard binding on sezmoo-abonament-staging.
 [[kv_namespaces]]
 binding = "CONTACT_RATE_LIMIT"
-id = "209eaca54aa048f5929e9c40271ef6b6"
-preview_id = "a068fd2af8f5415b8ad2b7785df8d461"
+id = "75ef0bc2ea3f4274b94b58ff076b27e5"
+preview_id = "75ef0bc2ea3f4274b94b58ff076b27e5"

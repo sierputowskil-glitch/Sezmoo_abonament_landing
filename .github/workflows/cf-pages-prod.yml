@@ -25,12 +25,12 @@ jobs:
           PUBLIC_SITE_URL: https://abonament.sezmoo.com
           PUBLIC_BASE_PATH: /
           PUBLIC_CONTACT_API_URL: /api/contact
-          PUBLIC_TURNSTILE_SITE_KEY: ${{ secrets.PUBLIC_TURNSTILE_SITE_KEY }}
+          PUBLIC_TURNSTILE_SITE_KEY: ${{ secrets.PROD_PUBLIC_TURNSTILE_SITE_KEY }}
           PUBLIC_ENABLE_GTM: 'true'
         run: npm run build
       - name: Publish to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          apiToken: ${{ secrets.PROD_CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.PROD_CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist --project-name=sezmoo-abonament
