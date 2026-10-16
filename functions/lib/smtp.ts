@@ -1,6 +1,6 @@
 /**
  * SMTP send via cloudflare-smtp (TCP + STARTTLS) — pattern from sammu-form.
- * Cyberfolks: smtp.cyberfolks.pl:465 (implicit TLS; prefer over 587 STARTTLS on CF Workers).
+ * Cyberfolks: s186.cyber-folks.pl:465 (implicit TLS; prefer over 587 STARTTLS on CF Workers).
  */
 import { sendMail } from 'cloudflare-smtp';
 
@@ -25,11 +25,11 @@ export async function sendContactEmail(
   },
   env: SmtpEnv,
 ): Promise<SmtpResult> {
-  const host = (env.SMTP_HOST || 'smtp.cyberfolks.pl').trim();
+  const host = (env.SMTP_HOST || 's186.cyber-folks.pl').trim();
   const port = Number((env.SMTP_PORT || '465').trim()) || 465;
   const username = (env.SMTP_USER || '').trim();
   const password = env.SMTP_PASS?.trim() || '';
-  const from = (env.SMTP_FROM || username || 'no-reply@sezmoo.com').trim();
+  const from = (env.SMTP_FROM || username || 'noreply@sezmoo.com').trim();
   const to = (env.MAIL_TO || 'robert.warych@gmail.com').trim();
 
   if (!username || !password) {

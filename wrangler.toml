@@ -12,11 +12,11 @@ compatibility_flags = ["nodejs_compat"]
 #   SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_FROM, SMTP_FROM_NAME, MAIL_TO
 
 [vars]
-SMTP_HOST = "smtp.cyberfolks.pl"
+SMTP_HOST = "s186.cyber-folks.pl"
 # 465 + implicit TLS — STARTTLS on 587 is flaky from Cloudflare Workers sockets.
 SMTP_PORT = "465"
-SMTP_USER = "no-reply@sezmoo.com"
-SMTP_FROM = "no-reply@sezmoo.com"
+SMTP_USER = "noreply@sezmoo.com"
+SMTP_FROM = "noreply@sezmoo.com"
 SMTP_FROM_NAME = "SEZMOO"
 MAIL_TO = "robert.warych@gmail.com"
 
