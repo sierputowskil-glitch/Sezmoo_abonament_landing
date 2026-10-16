@@ -7,6 +7,8 @@ interface ImportMetaEnv {
   readonly PUBLIC_TURNSTILE_SITE_KEY: string;
   readonly PUBLIC_CONTACT_API_URL: string;
   readonly PUBLIC_ENABLE_GTM?: string;
+  /** Set to `noindex` to force meta robots noindex (staging). */
+  readonly PUBLIC_ROBOTS?: string;
 }
 
 interface ImportMeta {

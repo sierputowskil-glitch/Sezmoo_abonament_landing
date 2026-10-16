@@ -1,0 +1,38 @@
+name: Staging — Cloudflare Pages
+
+on:
+  push:
+    branches: [feat/astro-migration]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+      - run: npm ci
+      - name: Astro check
+        run: npm run check
+      - name: Build Astro (staging)
+        env:
+          PUBLIC_SITE_URL: https://abonament.websky.pro
+          PUBLIC_BASE_PATH: /
+          PUBLIC_CONTACT_API_URL: /api/contact
+          # Cloudflare Turnstile invisible always-pass test key (safe for staging)
+          PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000BB
+          PUBLIC_ENABLE_GTM: ''
+          PUBLIC_ROBOTS: noindex
+        run: npm run build
+      - name: Publish to Cloudflare Pages (staging)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=sezmoo-abonament-staging --branch=main --commit-dirty=true

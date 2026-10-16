@@ -1,0 +1,12 @@
+---
+import { PHONE_DISPLAY, TEL_HREF } from '../lib/site';
+---
+
+<div class="mbar" id="mbar">
+  <a class="btn btn--y" href="#kontakt" data-cta="sticky"
+    >Zapytaj o&nbsp;abonament <svg aria-hidden="true"><use href="#i-arrow"></use></svg></a
+  >
+  <a class="mbar__tel" href={TEL_HREF} data-cta="sticky-tel" aria-label={`Zadzwoń: ${PHONE_DISPLAY}`}>
+    <svg aria-hidden="true"><use href="#i-tel"></use></svg>
+  </a>
+</div>

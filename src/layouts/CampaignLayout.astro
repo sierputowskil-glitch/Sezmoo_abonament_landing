@@ -3,6 +3,7 @@ import '../styles/fonts.css';
 import '../styles/lp.css';
 import archivoLatin from '@fontsource-variable/archivo/files/archivo-latin-standard-normal.woff2?url';
 import archivoLatinExt from '@fontsource-variable/archivo/files/archivo-latin-ext-standard-normal.woff2?url';
+import { GTM_ID, siteOrigin } from '../lib/site';
 
 interface Props {
   title: string;
@@ -11,7 +12,6 @@ interface Props {
   ogTitle?: string;
   ogDescription?: string;
   jsonLd?: string | Record<string, unknown> | Array<Record<string, unknown>>;
-  pageScripts?: string;
 }
 
 const {
@@ -21,13 +21,9 @@ const {
   ogTitle,
   ogDescription,
   jsonLd,
-  pageScripts = '',
 } = Astro.props;
 
-const siteUrl = (import.meta.env.PUBLIC_SITE_URL || 'https://abonament.sezmoo.com').replace(
-  /\/$/,
-  '',
-);
+const origin = siteOrigin();
 const contactApiRaw = import.meta.env.PUBLIC_CONTACT_API_URL;
 const contactApi =
   contactApiRaw === undefined || contactApiRaw === null
@@ -37,9 +33,15 @@ const TURNSTILE_TEST_INVISIBLE = '1x00000000000000000000BB';
 const turnstileKey = import.meta.env.DEV
   ? TURNSTILE_TEST_INVISIBLE
   : import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
-const canon = canonical || new URL(Astro.url.pathname, siteUrl + '/').href;
-const ogImg = `${siteUrl}/assets/og-image.png`;
+const canon = canonical || new URL(Astro.url.pathname, origin + '/').href;
+const ogImg = `${origin}/assets/og-image.png`;
 const enableGtm = import.meta.env.PUBLIC_ENABLE_GTM === 'true';
+const noindex =
+  import.meta.env.PUBLIC_ROBOTS === 'noindex' || origin.includes('websky.pro');
+const robotsContent = noindex ? 'noindex,follow' : 'index,follow';
+const lcpSrcset =
+  '/assets/optimized/lcp/showreel-poster-800.webp 800w, /assets/optimized/lcp/showreel-poster-1280.webp 1280w, /assets/optimized/lcp/showreel-poster-1920.webp 1920w';
+const lcpDefault = '/assets/optimized/lcp/showreel-poster-1280.webp';
 
 const jsonLdBlocks: string[] = [];
 if (typeof jsonLd === 'string' && jsonLd.trim()) {
@@ -66,7 +68,7 @@ if (typeof jsonLd === 'string' && jsonLd.trim()) {
     <title>{title}</title>
     <meta name="title" content={title} />
     {description && <meta name="description" content={description} />}
-    <meta name="robots" content="index,follow" />
+    <meta name="robots" content={robotsContent} />
     <link rel="canonical" href={canon} />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="pl_PL" />
@@ -78,13 +80,14 @@ if (typeof jsonLd === 'string' && jsonLd.trim()) {
       ) : null
     }
     <meta property="og:url" content={canon} />
-    <link rel="preconnect" href="https://i.ytimg.com" />
     <link rel="preload" href={archivoLatin} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={archivoLatinExt} as="font" type="font/woff2" crossorigin />
     <link
       rel="preload"
       as="image"
-      href="/assets/abonament/showreel-poster.webp"
+      href={lcpDefault}
+      imagesrcset={lcpSrcset}
+      imagesizes="100vw"
       fetchpriority="high"
     />
     {jsonLdBlocks.map((block) => <script type="application/ld+json" set:html={block} />)}
@@ -100,7 +103,7 @@ if (typeof jsonLd === 'string' && jsonLd.trim()) {
       enableGtm && (
         <noscript>
           <iframe
-            src="https://www.googletagmanager.com/ns.html?id=GTM-KJFG8DZL"
+            src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
             height="0"
             width="0"
             style="display:none;visibility:hidden"
@@ -114,9 +117,8 @@ if (typeof jsonLd === 'string' && jsonLd.trim()) {
     <script src="/assets/abonament/form.js" defer is:inline></script>
     {
       enableGtm && (
-        <script is:inline>
+        <script is:inline define:vars={{ GTM_ID }}>
           (function () {
-            var GTM_ID = 'GTM-KJFG8DZL';
             function loadGtm() {
               if (window.__SEZMOO_GTM__) return;
               window.__SEZMOO_GTM__ = true;
@@ -142,6 +144,8 @@ if (typeof jsonLd === 'string' && jsonLd.trim()) {
         </script>
       )
     }
-    {pageScripts && <Fragment set:html={`<script>${pageScripts}</script>`} />}
+    <script>
+      import '../scripts/lp';
+    </script>
   </body>
 </html>

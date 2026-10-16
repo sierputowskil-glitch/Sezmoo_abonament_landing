@@ -19,11 +19,8 @@ SMTP_FROM = "no-reply@sezmoo.com"
 SMTP_FROM_NAME = "SEZMOO"
 MAIL_TO = "biuro@sezmoo.com"
 
-# Contact form rate limit (shared across isolates).
-# Create namespace, then replace placeholders:
-#   wrangler kv namespace create CONTACT_RATE_LIMIT
-#   wrangler kv namespace create CONTACT_RATE_LIMIT --preview
+# Contact form rate limit (same account KV as sezmoosite).
 [[kv_namespaces]]
 binding = "CONTACT_RATE_LIMIT"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
-preview_id = "REPLACE_WITH_KV_PREVIEW_ID"
+id = "209eaca54aa048f5929e9c40271ef6b6"
+preview_id = "a068fd2af8f5415b8ad2b7785df8d461"

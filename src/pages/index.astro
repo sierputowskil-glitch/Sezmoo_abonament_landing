@@ -1,8 +1,24 @@
 ---
 import CampaignLayout from '../layouts/CampaignLayout.astro';
-import bodyHtml from '../data/body.html?raw';
-import pageScripts from '../data/page-scripts.js?raw';
-import jsonLdRaw from '../data/jsonld.json?raw';
+import FloatingSocials from '../components/FloatingSocials.astro';
+import IconSprite from '../components/IconSprite.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import Jobs from '../components/Jobs.astro';
+import Process from '../components/Process.astro';
+import Packages from '../components/Packages.astro';
+import Works from '../components/Works.astro';
+import Why from '../components/Why.astro';
+import Scope from '../components/Scope.astro';
+import ForWhom from '../components/ForWhom.astro';
+import Logos from '../components/Logos.astro';
+import Quotes from '../components/Quotes.astro';
+import Team from '../components/Team.astro';
+import Faq from '../components/Faq.astro';
+import Contact from '../components/Contact.astro';
+import Footer from '../components/Footer.astro';
+import MobileBar from '../components/MobileBar.astro';
+import { jsonLd } from '../data/schema';
 
 const title = 'Abonament na wideo, foto i grafikę – wsparcie marketingu | SEZMOO';
 const description =
@@ -17,8 +33,27 @@ const ogDescription =
   description={description}
   ogTitle={ogTitle}
   ogDescription={ogDescription}
-  jsonLd={jsonLdRaw}
-  pageScripts={pageScripts}
+  jsonLd={jsonLd}
 >
-  <Fragment set:html={bodyHtml} />
+  <FloatingSocials />
+  <a class="skip" href="#main">Przejdź do treści</a>
+  <IconSprite />
+  <Header />
+  <main id="main">
+    <Hero />
+    <Jobs />
+    <Process />
+    <Packages />
+    <Works />
+    <Why />
+    <Scope />
+    <ForWhom />
+    <Logos />
+    <Quotes />
+    <Team />
+    <Faq />
+    <Contact />
+  </main>
+  <Footer />
+  <MobileBar />
 </CampaignLayout>
