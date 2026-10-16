@@ -1,16 +1,35 @@
-# SEZMOO – landing /abonament/
+# SEZMOO – landing abonament
 
-Samodzielny landing (statyczny HTML, bez builda). Wszystkie zasoby w `assets/`.
+Astro (static) + Cloudflare Pages Function for the contact form.
 
-- Wejście: `index.html`
-- Linki do serwisu głównego są absolutne (https://sezmoo.com/...).
-- Domena: **https://abonamenty.sezmoo.com/** (canonical, og:url, og:image, JSON-LD ustawione).
-- Na sezmoo.com warto dodać przekierowanie 301: /abonament/ → https://abonamenty.sezmoo.com/
-- `robots: noindex,follow` celowo (landing kampanijny).
-- Telefon na landingu: +48 739 260 450 (celowo inny niż w serwisie).
-- GTM: GTM-KJFG8DZL.
+- **Canonical:** https://abonament.sezmoo.com/
+- **GTM:** `GTM-KJFG8DZL` (only when `PUBLIC_ENABLE_GTM=true` in prod CI)
+- **Phone:** +48 739 260 450
+- **Legacy HTML/PHP:** branch `legacy/cyberfolks-html`
 
-## Formularz (PHP)
-- `send.php` + `public-config.php` — skopiowane z serwisu głównego, działają na Apache + PHP (Cyberfolks).
-- `composer install` (PHPMailer) → `vendor/`.
-- Skopiuj `config.local.php.example` → `config.local.php` i uzupełnij SMTP + klucze Turnstile (te same co w serwisie; w panelu Cloudflare Turnstile dodaj hostname abonamenty.sezmoo.com).
+## Local
+
+```bash
+cp .env.example .env
+cp .dev.vars.example .dev.vars   # fill SMTP_PASS for real mail
+npm install
+npm run dev                      # static site only
+npm run build && npm run dev:functions   # site + /api/contact
+```
+
+## Deploy (Cloudflare Pages)
+
+1. Create Pages project `sezmoo-abonament` and KV namespace `CONTACT_RATE_LIMIT` (update `wrangler.toml` IDs).
+2. Secrets: `TURNSTILE_SECRET_KEY`, `SMTP_PASS` (+ GH Actions: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `PUBLIC_TURNSTILE_SITE_KEY`).
+3. Custom domain: `abonament.sezmoo.com`.
+4. Turnstile: allow hostname `abonament.sezmoo.com`.
+5. Push to `main` → workflow `.github/workflows/cf-pages-prod.yml`.
+
+## sezmoosite follow-up
+
+On the main site repo: remove `/abonament/` page and add 301:
+
+```
+/abonament/  https://abonament.sezmoo.com/  301
+/abonament  https://abonament.sezmoo.com/  301
+```

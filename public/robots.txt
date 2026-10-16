@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://abonament.sezmoo.com/sitemap-index.xml

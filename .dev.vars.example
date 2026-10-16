@@ -1,0 +1,9 @@
+# Copy to .dev.vars for `wrangler pages dev` — do not commit real passwords.
+TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
+SMTP_HOST=smtp.cyberfolks.pl
+SMTP_PORT=587
+SMTP_USER=noreply@sezmoo.com
+SMTP_PASS=
+SMTP_FROM=noreply@sezmoo.com
+SMTP_FROM_NAME=SEZMOO
+MAIL_TO=biuro@sezmoo.com

@@ -1,0 +1,29 @@
+# Cloudflare Pages — local `wrangler pages dev` + dashboard deploy
+name = "sezmoo-abonament"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-10-15"
+compatibility_flags = ["nodejs_compat"]
+
+# Secrets (dashboard / `wrangler pages secret put` / `.dev.vars`):
+#   TURNSTILE_SECRET_KEY
+#   SMTP_PASS
+#
+# Optional vars (can also live in dashboard):
+#   SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_FROM, SMTP_FROM_NAME, MAIL_TO
+
+[vars]
+SMTP_HOST = "smtp.cyberfolks.pl"
+SMTP_PORT = "587"
+SMTP_USER = "no-reply@sezmoo.com"
+SMTP_FROM = "no-reply@sezmoo.com"
+SMTP_FROM_NAME = "SEZMOO"
+MAIL_TO = "biuro@sezmoo.com"
+
+# Contact form rate limit (shared across isolates).
+# Create namespace, then replace placeholders:
+#   wrangler kv namespace create CONTACT_RATE_LIMIT
+#   wrangler kv namespace create CONTACT_RATE_LIMIT --preview
+[[kv_namespaces]]
+binding = "CONTACT_RATE_LIMIT"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+preview_id = "REPLACE_WITH_KV_PREVIEW_ID"

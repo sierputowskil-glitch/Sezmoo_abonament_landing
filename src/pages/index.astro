@@ -1,0 +1,24 @@
+---
+import CampaignLayout from '../layouts/CampaignLayout.astro';
+import bodyHtml from '../data/body.html?raw';
+import pageScripts from '../data/page-scripts.js?raw';
+import jsonLdRaw from '../data/jsonld.json?raw';
+
+const title = 'Abonament na wideo, foto i grafikę – wsparcie marketingu | SEZMOO';
+const description =
+  'Elastyczny abonament produkcyjny dla działów marketingu. Wideo, fotografia, grafika i content w jednej puli godzin, z dedykowanym zespołem SEZMOO.';
+const ogTitle = 'Kompleksowe wsparcie dla marketingu – abonament SEZMOO';
+const ogDescription =
+  'Wideo, fotografia, grafika i content w jednej miesięcznej puli godzin. Pakiety 30h, 60h, 120h i Custom. Stały zespół SEZMOO.';
+---
+
+<CampaignLayout
+  title={title}
+  description={description}
+  ogTitle={ogTitle}
+  ogDescription={ogDescription}
+  jsonLd={jsonLdRaw}
+  pageScripts={pageScripts}
+>
+  <Fragment set:html={bodyHtml} />
+</CampaignLayout>

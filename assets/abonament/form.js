@@ -1,6 +1,6 @@
-/* SEZMOO /abonament/ — formularz → send.php + Turnstile (invisible).
-   Logika i zdarzenia dataLayer jak w assets/js/app.js (form_start, generate_lead,
-   form_submit_error), bez reszty skryptu strony głównej, który wymaga jej DOM. */
+/* SEZMOO abonament — formularz → /api/contact + Turnstile (invisible).
+   Logika i zdarzenia dataLayer: form_start, generate_lead, form_submit_error.
+   Site key / API URL z window.__SEZMOO__ (CampaignLayout). */
 (function () {
   "use strict";
   var f = document.getElementById("abonament-form");
@@ -22,6 +22,14 @@
   host.style.cssText = "position:absolute;width:0;height:0;overflow:hidden;clip:rect(0,0,0,0);";
   f.appendChild(host);
 
+  function cfg() {
+    return (window.__SEZMOO__ && typeof window.__SEZMOO__ === "object") ? window.__SEZMOO__ : {};
+  }
+  function contactUrl() {
+    var u = cfg().contactApiUrl;
+    if (u === "" || u === null) return "";
+    return u || f.getAttribute("action") || "/api/contact";
+  }
   function dlPush(p) { window.dataLayer = window.dataLayer || []; window.dataLayer.push(p); }
   function meta() {
     var need = f.querySelector('[name="need"]'), pack = f.querySelector('[name="package"]');
@@ -49,13 +57,13 @@
   });
 
   function getSiteKey() {
-    if (!siteKeyPromise) siteKeyPromise = fetch("/public-config.php", { cache: "no-store" })
-      .then(function (r) { return r.json(); })
-      .then(function (d) {
-        var k = d && d.turnstileSiteKey ? String(d.turnstileSiteKey) : "";
+    if (!siteKeyPromise) {
+      siteKeyPromise = Promise.resolve().then(function () {
+        var k = cfg().turnstileSiteKey ? String(cfg().turnstileSiteKey) : "";
         if (!k || k.indexOf("...") !== -1) throw new Error("no-sitekey");
         return k;
       });
+    }
     return siteKeyPromise;
   }
   function loadApi() {
@@ -89,12 +97,15 @@
   function resetWidget() { if (widgetId !== null && window.turnstile) { try { window.turnstile.reset(widgetId); } catch (e) {} } }
   function done() { if (btn) btn.disabled = false; if (lbl) lbl.textContent = lblText; }
 
-  // Turnstile ładujemy dopiero, gdy ktoś zacznie wypełniać formularz (szybszy start strony).
   f.addEventListener("focusin", function () {
     if (started) return;
     started = true;
     var m = meta();
     dlPush({ event: "form_start", form_id: m.form_id, form_name: m.form_name, form_lang: m.form_lang });
+    if (!contactUrl()) {
+      say("● Formularz niedostępny na tym środowisku — napisz na biuro@sezmoo.com");
+      return;
+    }
     ensureWidget().catch(function () { say("● Nie udało się załadować ochrony formularza — napisz na biuro@sezmoo.com"); });
   });
 
@@ -102,11 +113,16 @@
     e.preventDefault();
     validate();
     if (!f.checkValidity()) { f.reportValidity(); return; }
+    var url = contactUrl();
+    if (!url) {
+      say("● Formularz niedostępny na tym środowisku — napisz na biuro@sezmoo.com");
+      return;
+    }
     if (btn) btn.disabled = true;
     if (lbl) lbl.textContent = "Wysyłanie…";
     var m = meta();
     challenge()
-      .then(function () { return fetch(f.getAttribute("action") || "/send.php", { method: "POST", body: new FormData(f) }); })
+      .then(function () { return fetch(url, { method: "POST", body: new FormData(f) }); })
       .then(function (r) { return r.json().catch(function () { return { ok: false, error: "Nieprawidłowa odpowiedź serwera" }; }); })
       .then(function (d) {
         if (d && d.ok) {

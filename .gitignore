@@ -1,2 +1,33 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs and local env
+*.log
+.env
+.env.*
+!.env.example
+.dev.vars
 config.local.php
+logs/
 vendor/
+
+# Copied from assets/ by npm run sync:assets
+/public/assets/
+
+# Dependencies and build
+node_modules/
+dist/
+.cache/
+.astro/
+.wrangler/
