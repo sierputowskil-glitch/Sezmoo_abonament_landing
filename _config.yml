@@ -1,0 +1,7 @@
+# GitHub Pages is not used for hosting (Cloudflare Pages is).
+# This config only prevents the legacy "pages-build-deployment" Jekyll job
+# from failing on Astro sources. Prefer Settings → Pages → Source: None.
+exclude:
+  - '*'
+include:
+  - README.md
