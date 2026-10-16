@@ -116,6 +116,76 @@ if (typeof jsonLd === 'string' && jsonLd.trim()) {
         contactApiUrl: contactApi,
       };
     </script>
+    {/* CookieYes Free injects blue defaults as element style=… — paint live sezmoo.com theme after CMP mounts */}
+    <style is:inline>
+      .cky-consent-container .cky-consent-bar{background-color:#fff!important;border:1px solid #f4f4f4!important;border-radius:6px!important;box-shadow:0 -1px 10px 0 #acabab4d!important}
+      .cky-title,.cky-notice-des,.cky-notice-des *,.cky-notice-group,.cky-preference-title,.cky-preference-content-wrapper,.cky-accordion-btn,.cky-accordion-header-des{color:#212121!important}
+      .cky-policy,.cky-notice-des a.cky-policy,.cky-show-desc-btn{color:#ffd200!important}
+      .cky-btn{border-radius:2px!important;border-width:2px!important;font-size:14px!important;font-weight:500!important;text-transform:none!important;letter-spacing:normal!important;min-height:0!important;padding:8px!important}
+      .cky-btn-accept,.cky-btn-accept-all,.cky-preference-center .cky-btn-accept,.cky-btn-save-preferences{background-color:#ffd200!important;border-color:#ffd200!important;color:#000!important}
+      .cky-btn-reject,.cky-btn-reject-all,.cky-btn-customize,.cky-btn-preferences{background-color:transparent!important;border-color:#ffd200!important;color:#ffd200!important}
+      .cky-modal,.cky-preference-center{background-color:#fff!important;border-color:#f4f4f4!important;color:#212121!important;border-radius:6px!important}
+      .cky-switch input[type=checkbox]{background:#d0d5d2!important}
+      .cky-switch input[type=checkbox]:checked{background:#ffd200!important}
+      .cky-btn-revisit-wrapper{background-color:#ffd200!important}
+    </style>
+    <script is:inline>
+      (function () {
+        var Y = '#FFD200';
+        var map = [
+          ['.cky-consent-bar', 'border-color:#f4f4f4;background-color:#FFFFFF'],
+          ['.cky-title', 'color:#212121'],
+          ['.cky-notice-des', 'color:#212121'],
+          ['.cky-policy', 'color:' + Y + ';border-color:transparent;background-color:transparent'],
+          ['.cky-btn-accept', 'color:#000000;border-color:' + Y + ';background-color:#ffd200'],
+          ['.cky-btn-reject', 'color:' + Y + ';border-color:' + Y + ';background-color:transparent'],
+          ['.cky-btn-customize', 'color:' + Y + ';border-color:' + Y + ';background-color:transparent'],
+          ['.cky-btn-preferences', 'color:' + Y + ';border-color:' + Y + ';background-color:transparent'],
+          ['.cky-preference-center', 'color:#212121;border-color:#F4F4F4;background-color:#FFFFFF'],
+          ['.cky-preference-title', 'color:#212121'],
+          ['.cky-btn-revisit-wrapper', 'background-color:' + Y],
+        ];
+        function paint(root) {
+          var scope = root && root.querySelectorAll ? root : document;
+          for (var i = 0; i < map.length; i++) {
+            var nodes = scope.querySelectorAll(map[i][0]);
+            for (var j = 0; j < nodes.length; j++) {
+              nodes[j].setAttribute('style', map[i][1]);
+            }
+          }
+          var toggles = scope.querySelectorAll('.cky-switch input[type="checkbox"]');
+          for (var k = 0; k < toggles.length; k++) {
+            toggles[k].style.backgroundColor = toggles[k].checked ? Y : '#d0d5d2';
+          }
+        }
+        function boot() {
+          paint(document);
+          if (!window.MutationObserver) return;
+          var obs = new MutationObserver(function (muts) {
+            for (var i = 0; i < muts.length; i++) {
+              var nodes = muts[i].addedNodes;
+              for (var j = 0; j < nodes.length; j++) {
+                var n = nodes[j];
+                if (n.nodeType !== 1) continue;
+                if (
+                  n.classList &&
+                  (n.classList.contains('cky-consent-container') ||
+                    n.classList.contains('cky-modal') ||
+                    n.id === 'cky-consent-container')
+                ) {
+                  paint(n);
+                } else if (n.querySelector && n.querySelector('.cky-consent-bar,.cky-btn-accept,.cky-preference-center')) {
+                  paint(n);
+                }
+              }
+            }
+          });
+          obs.observe(document.documentElement, { childList: true, subtree: true });
+        }
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+        else boot();
+      })();
+    </script>
   </head>
   <body>
     {
