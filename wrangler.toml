@@ -18,7 +18,7 @@ SMTP_PORT = "465"
 SMTP_USER = "noreply@sezmoo.com"
 SMTP_FROM = "noreply@sezmoo.com"
 SMTP_FROM_NAME = "SEZMOO"
-MAIL_TO = "robert.warych@gmail.com"
+MAIL_TO = "biuro@sezmoo.com"
 
 # Contact form rate limit — sezmoo.com account (prod + Pages preview share this).
 [[kv_namespaces]]

@@ -6,4 +6,4 @@ SMTP_USER=noreply@sezmoo.com
 SMTP_PASS=
 SMTP_FROM=noreply@sezmoo.com
 SMTP_FROM_NAME=SEZMOO
-MAIL_TO=robert.warych@gmail.com
+MAIL_TO=biuro@sezmoo.com

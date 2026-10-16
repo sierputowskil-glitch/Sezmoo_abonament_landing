@@ -30,7 +30,7 @@ export async function sendContactEmail(
   const username = (env.SMTP_USER || '').trim();
   const password = env.SMTP_PASS?.trim() || '';
   const from = (env.SMTP_FROM || username || 'noreply@sezmoo.com').trim();
-  const to = (env.MAIL_TO || 'robert.warych@gmail.com').trim();
+  const to = (env.MAIL_TO || 'biuro@sezmoo.com').trim();
 
   if (!username || !password) {
     console.error('smtp_not_configured');
