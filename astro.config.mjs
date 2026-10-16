@@ -16,6 +16,7 @@ const base = rawBase === '/' || rawBase === '' ? '/' : `/${rawBase.replace(/^\/|
 export default defineConfig({
   site,
   base,
+  compressHTML: true,
   trailingSlash: 'always',
   output: 'static',
   build: {
