@@ -13,7 +13,8 @@ compatibility_flags = ["nodejs_compat"]
 
 [vars]
 SMTP_HOST = "s178.cyber-folks.pl"
-SMTP_PORT = "587"
+# 465 + implicit TLS — STARTTLS on 587 is flaky from Cloudflare Workers sockets.
+SMTP_PORT = "465"
 SMTP_USER = "no-reply@sezmoo.com"
 SMTP_FROM = "no-reply@sezmoo.com"
 SMTP_FROM_NAME = "SEZMOO"
