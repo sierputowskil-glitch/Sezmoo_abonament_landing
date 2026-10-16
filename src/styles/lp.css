@@ -323,6 +323,32 @@ button{font:inherit;cursor:pointer}
 .cfield textarea{min-height:120px;resize:vertical}
 .cfield input:focus,.cfield select:focus,.cfield textarea:focus{outline:none;border-color:var(--y)}
 .cfield input::placeholder,.cfield textarea::placeholder{color:var(--ink-faint)}
+/* Kill Chrome/Safari autofill wash on dark fields.
+   Use hex + !important — WebKit often ignores CSS vars inside autofill. */
+.cfield input:-webkit-autofill,
+.cfield input:-webkit-autofill:hover,
+.cfield input:-webkit-autofill:focus,
+.cfield input:-webkit-autofill:active,
+.cfield textarea:-webkit-autofill,
+.cfield textarea:-webkit-autofill:hover,
+.cfield textarea:-webkit-autofill:focus,
+.cfield textarea:-webkit-autofill:active{
+  -webkit-text-fill-color:#F4F1ED !important;
+  color:#F4F1ED !important;
+  caret-color:#F4F1ED !important;
+  background-color:#0A0806 !important;
+  background-image:none !important;
+  -webkit-box-shadow:0 0 0 1000px #0A0806 inset !important;
+  box-shadow:0 0 0 1000px #0A0806 inset !important;
+  transition:background-color 99999s ease-in-out 0s;
+}
+.cfield select:-webkit-autofill,
+.cfield select:-webkit-autofill:hover,
+.cfield select:-webkit-autofill:focus{
+  -webkit-text-fill-color:#F4F1ED !important;
+  -webkit-box-shadow:0 0 0 1000px #0A0806 inset !important;
+  box-shadow:0 0 0 1000px #0A0806 inset !important;
+}
 .cconsent{display:flex;gap:12px;align-items:flex-start;font-size:13px;line-height:1.5;color:var(--ink-dim)}
 .cconsent input{width:18px;height:18px;margin-top:2px;flex:none;accent-color:var(--y)}
 .cconsent a{text-decoration:underline}

@@ -87,7 +87,7 @@ if (typeof jsonLd === 'string' && jsonLd.trim()) {
       as="image"
       href={lcpDefault}
       imagesrcset={lcpSrcset}
-      imagesizes="100vw"
+      imagesizes="(min-width: 981px) 55vw, 100vw"
       fetchpriority="high"
     />
     {jsonLdBlocks.map((block) => <script type="application/ld+json" set:html={block} />)}
@@ -114,7 +114,6 @@ if (typeof jsonLd === 'string' && jsonLd.trim()) {
 
     <slot />
 
-    <script src="/assets/abonament/form.js" defer is:inline></script>
     {
       enableGtm && (
         <script is:inline define:vars={{ GTM_ID }}>
