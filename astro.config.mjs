@@ -19,6 +19,11 @@ export default defineConfig({
   build: {
     format: 'directory',
   },
+  server: {
+    // Phone testing on LAN / tunnels
+    allowedHosts: true,
+    host: true,
+  },
   image: {
     service: {
       entrypoint: 'astro/assets/services/sharp',

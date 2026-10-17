@@ -10,6 +10,7 @@
   "scripts": {
     "optimize:lcp": "node scripts/optimize-lcp-heroes.mjs",
     "dev": "astro dev",
+    "dev:lan": "astro dev --host 0.0.0.0 --port 4321",
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
