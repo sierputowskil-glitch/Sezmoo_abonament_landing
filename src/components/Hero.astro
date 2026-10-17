@@ -1,13 +1,8 @@
 ---
-import { Image, getImage } from 'astro:assets';
+import { Image } from 'astro:assets';
 import showreelPoster from '../assets/abonament/showreel-poster-landscape.webp';
 
 const lcpSizes = '(min-width: 981px) 55vw, 100vw';
-const poster = await getImage({
-  src: showreelPoster,
-  width: 1280,
-  format: 'webp',
-});
 ---
 
 <section class="hero" id="top">
@@ -74,10 +69,11 @@ const poster = await getImage({
           loop
           playsinline
           webkit-playsinline
-          preload="metadata"
+          preload="auto"
+          width="1280"
+          height="720"
           aria-hidden="true"
-          data-src="/assets/abonament/video/showreel.mp4"
-          poster={poster.src}
+          src="/assets/abonament/video/showreel.mp4"
         ></video>
       </div>
       <span class="hero__tc"><span class="dot"></span>SEZMOO · SHOWREEL 2026</span>

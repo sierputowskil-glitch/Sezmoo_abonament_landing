@@ -1,12 +1,9 @@
 ---
-import { Image, getImage } from 'astro:assets';
+import { Image } from 'astro:assets';
 import ytAudi from '../assets/abonament/yt-audi-rs3.webp';
 import ytJaecoo from '../assets/abonament/yt-jaecoo.webp';
 import zakresFoto from '../assets/abonament/zakres-foto.webp';
 import sohoForm from '../assets/abonament/realizacja-soho-form.webp';
-
-const audiPoster = await getImage({ src: ytAudi, width: 720, format: 'webp' });
-const jaecooPoster = await getImage({ src: ytJaecoo, width: 720, format: 'webp' });
 ---
 
 <section class="sec" aria-labelledby="scope-h" style="padding-top:0">
@@ -37,10 +34,11 @@ const jaecooPoster = await getImage({ src: ytJaecoo, width: 720, format: 'webp' 
             loop
             playsinline
             webkit-playsinline
-            preload="metadata"
+            preload="none"
+            width="720"
+            height="900"
             aria-hidden="true"
             data-src="/assets/abonament/video/audi-rs3.mp4"
-            poster={audiPoster.src}
           ></video>
         </div>
         <h3>Wideo</h3>
@@ -94,10 +92,11 @@ const jaecooPoster = await getImage({ src: ytJaecoo, width: 720, format: 'webp' 
             loop
             playsinline
             webkit-playsinline
-            preload="metadata"
+            preload="none"
+            width="720"
+            height="900"
             aria-hidden="true"
             data-src="/assets/abonament/video/jaecoo-mundial.mp4"
-            poster={jaecooPoster.src}
           ></video>
         </div>
         <h3>Content i&nbsp;social media</h3>
