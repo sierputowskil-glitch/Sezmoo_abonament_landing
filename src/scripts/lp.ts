@@ -2,10 +2,10 @@
  * LP client: sticky mbar, data-cta → dataLayer lp_cta_click,
  * self-hosted muted background videos (no YouTube iframe).
  *
- * Prod differs from local: GTM + CookieYes mount late and can block the first
- * muted autoplay attempt. Retries after load / consent UI / gesture.
- * On Save-Data / cellular / slow effectiveType: no autoplay — play control only
- * so images can load first on LTE.
+ * Videos use data-src so MP4s do not compete with lazy images on first paint.
+ * On Save-Data / cellular / slow effectiveType: play control only.
+ * On Wi‑Fi: one clip at a time, after window load / idle — never attach all
+ * scope sources from CookieYes retries (that starved the page bottom).
  */
 
 type NetworkInformation = {
@@ -110,6 +110,24 @@ function pauseOffscreenBgVideos(except?: HTMLVideoElement): void {
   });
 }
 
+/** Abort offscreen downloads so images can use the connection. */
+function releaseOffscreenVideoBandwidth(except?: HTMLVideoElement): void {
+  document.querySelectorAll<HTMLVideoElement>('[data-bg-video] video').forEach((v) => {
+    if (v === except) return;
+    if (isInViewport(v) && !v.paused) return;
+    const src = v.getAttribute('src');
+    if (!src) return;
+    if (!v.getAttribute('data-src')) v.setAttribute('data-src', src);
+    v.removeAttribute('src');
+    v.pause();
+    try {
+      v.load();
+    } catch {
+      /* ignore */
+    }
+  });
+}
+
 function tryPlayBgVideo(v: HTMLVideoElement): void {
   armMutedInline(v);
   if (!v.paused) {
@@ -128,6 +146,7 @@ function playBgVideo(wrap: HTMLElement): void {
   const v = wrap.querySelector('video');
   if (!(v instanceof HTMLVideoElement)) return;
   armMutedInline(v);
+  releaseOffscreenVideoBandwidth(v);
   attachSrc(v);
   v.addEventListener('playing', () => markPlaying(v));
   v.addEventListener('canplay', () => tryPlayBgVideo(v), { once: true });
@@ -172,6 +191,7 @@ function showPlayControl(wrap: HTMLElement | null): void {
     ev.preventDefault();
     ev.stopPropagation();
     armMutedInline(v);
+    releaseOffscreenVideoBandwidth(v);
     attachSrc(v);
     pauseOffscreenBgVideos(v);
     void v.play().then(() => markPlaying(v)).catch(() => {});
@@ -192,16 +212,21 @@ function whenNear(el: HTMLElement, fn: () => void): void {
         fn();
       });
     },
-    { rootMargin: '160px 0px' },
+    { rootMargin: '80px 0px' },
   );
   io.observe(el);
 }
 
+/**
+ * Retry play only — never attachSrc. CookieYes / GTM mutations used to call this
+ * and pull every scope MP4 at once (~10MB), leaving image placeholders white.
+ */
 function kickVisiblePaused(): void {
   document.querySelectorAll<HTMLVideoElement>('[data-bg-video] video').forEach((v) => {
-    if (!v.getAttribute('src') && v.getAttribute('data-src')) attachSrc(v);
-    if (v.paused && isInViewport(v)) tryPlayBgVideo(v);
-    else if (!v.paused) markPlaying(v);
+    if (!v.getAttribute('src')) return;
+    if (!isInViewport(v)) return;
+    if (v.paused) tryPlayBgVideo(v);
+    else markPlaying(v);
   });
 }
 
@@ -215,7 +240,7 @@ function initGestureUnlock(): void {
 
 /**
  * Prod-only delay: CookieYes (via GTM) mounts after first paint and can steal the
- * first autoplay window. Retry a few times after load / when the bar is dismissed.
+ * first autoplay window. Retry play on already-sourced clips only.
  */
 function initLateAutoplayRetries(): void {
   const delays = [400, 1200, 2500, 5000];
@@ -232,16 +257,6 @@ function initLateAutoplayRetries(): void {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') run();
   });
-
-  if (!('MutationObserver' in window)) return;
-  const mo = new MutationObserver(() => run());
-  mo.observe(document.documentElement, {
-    childList: true,
-    subtree: true,
-    attributes: true,
-    attributeFilter: ['class', 'style', 'hidden', 'aria-hidden'],
-  });
-  setTimeout(() => mo.disconnect(), 15000);
 }
 
 function prepareManualPlay(wrap: HTMLElement): void {
@@ -251,6 +266,18 @@ function prepareManualPlay(wrap: HTMLElement): void {
   deferVideoSrc(v);
   v.addEventListener('playing', () => markPlaying(v));
   showPlayControl(wrap);
+}
+
+function afterImagesHaveHeadroom(fn: () => void): void {
+  const start = () => {
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(fn, { timeout: 1800 });
+    } else {
+      setTimeout(fn, 400);
+    }
+  };
+  if (document.readyState === 'complete') start();
+  else window.addEventListener('load', start, { once: true });
 }
 
 function initBgVideos(): void {
@@ -270,15 +297,13 @@ function initBgVideos(): void {
 
   document.querySelectorAll<HTMLElement>('[data-bg-video]').forEach((wrap) => {
     if (wrap.getAttribute('data-bg-video-priority') === 'hero') {
-      const start = () => playBgVideo(wrap);
-      if ('requestIdleCallback' in window) {
-        window.requestIdleCallback(start, { timeout: 2500 });
-      } else {
-        setTimeout(start, 600);
-      }
+      afterImagesHaveHeadroom(() => playBgVideo(wrap));
       return;
     }
-    whenNear(wrap, () => playBgVideo(wrap));
+    // Scope clips: only when near, and only after load so works/team images win first.
+    afterImagesHaveHeadroom(() => {
+      whenNear(wrap, () => playBgVideo(wrap));
+    });
   });
 }
 

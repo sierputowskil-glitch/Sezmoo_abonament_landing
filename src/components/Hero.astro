@@ -67,16 +67,15 @@ const showreelSrc = publicUrl('assets/abonament/video/showreel.mp4');
           height={720}
         />
         <video
-          autoplay
           muted
           loop
           playsinline
           webkit-playsinline
-          preload="metadata"
+          preload="none"
           width="1280"
           height="720"
           aria-hidden="true"
-          src={showreelSrc}
+          data-src={showreelSrc}
         ></video>
       </div>
       <span class="hero__tc"><span class="dot"></span>SEZMOO · SHOWREEL 2026</span>
