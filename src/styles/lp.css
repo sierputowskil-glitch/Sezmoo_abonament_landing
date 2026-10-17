@@ -218,6 +218,7 @@ button{font:inherit;cursor:pointer}
 .dark .lead,.dark .muted{color:var(--ink-dim)}
 .works{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;list-style:none}
 .work__img{position:relative;aspect-ratio:3/2;border-radius:4px;overflow:hidden;background:var(--ink-2)}
+.work__img img{background:var(--ink-2)}
 .work__img img{width:100%;height:100%;object-fit:cover;filter:saturate(.9) brightness(.92);transition:transform .6s cubic-bezier(.2,.7,.2,1),filter .4s}
 .work{display:block}
 .work:hover .work__img img{transform:scale(1.04);filter:none}
@@ -243,7 +244,7 @@ button{font:inherit;cursor:pointer}
 /* zakres */
 .scope{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px;list-style:none}
 .scope__img{aspect-ratio:4/5;border-radius:4px;overflow:hidden;background:var(--bg-3)}
-.scope__img img{width:100%;height:100%;object-fit:cover}
+.scope__img img{width:100%;height:100%;object-fit:cover;background:var(--bg-3)}
 .scope__img--vid{position:relative}
 .scope__img--vid img,.scope__img--vid video{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover}
 .scope__img--vid img{z-index:0}

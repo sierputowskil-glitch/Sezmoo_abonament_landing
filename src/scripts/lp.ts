@@ -231,7 +231,13 @@ function initBgVideos(): void {
 
   document.querySelectorAll<HTMLElement>('[data-bg-video]').forEach((wrap) => {
     if (wrap.getAttribute('data-bg-video-priority') === 'hero') {
-      playBgVideo(wrap);
+      // Defer MP4 start so LTE can finish LCP/poster + below-fold images first.
+      const start = () => playBgVideo(wrap);
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(start, { timeout: 2500 });
+      } else {
+        setTimeout(start, 600);
+      }
       return;
     }
     whenNear(wrap, () => playBgVideo(wrap));
