@@ -2,10 +2,12 @@
  * LP client: sticky mbar, data-cta → dataLayer lp_cta_click,
  * self-hosted muted background videos (no YouTube iframe).
  *
- * Policy:
- * - Save-Data / reduced-motion / slow-2g|2g → poster + play (no MP4 until tap)
- * - Wi‑Fi / LTE / unknown (iOS): autoplay AFTER eager images settle
- * - One clip downloading at a time; offscreen hero yields bandwidth on scroll
+ * Policy (PSI / Slow‑4G):
+ * - Save-Data / reduced-motion / slow-2g|2g → poster + play
+ * - Else: wait for eager images, then wait for LCP to finalize, THEN autoplay.
+ *   Attaching showreel (~3.4MB) before LCP made the video the LCP element (~5s).
+ *   YouTube facade scored ~100 because it never fetched a big media file on load.
+ * - One clip at a time; offscreen hero yields bandwidth on scroll
  */
 
 type NetworkInformation = {
@@ -258,24 +260,23 @@ function prepareManualPlay(wrap: HTMLElement): void {
   showPlayControl(wrap);
 }
 
-/**
- * Wi‑Fi / LTE autoplay gate: all eager (+ LCP) images load+decode first,
- * then MP4 may start. Timeout so a hung image never blocks forever.
- */
-function whenEagerImagesReady(fn: () => void, timeoutMs = 4000): void {
+/** Hero poster + high-priority only — do not wait for every carousel eager img. */
+function whenHeroPosterReady(fn: () => void, timeoutMs = 2500): void {
   const imgs = [
     ...document.querySelectorAll<HTMLImageElement>(
-      'img[loading="eager"], img[fetchpriority="high"]',
+      '.hero__frame img, img[fetchpriority="high"]',
     ),
   ];
-
   let finished = false;
   const done = () => {
     if (finished) return;
     finished = true;
     fn();
   };
-
+  if (imgs.length === 0) {
+    done();
+    return;
+  }
   const settle = async (img: HTMLImageElement) => {
     if (!(img.complete && img.naturalWidth > 0)) {
       await new Promise<void>((resolve) => {
@@ -287,16 +288,41 @@ function whenEagerImagesReady(fn: () => void, timeoutMs = 4000): void {
       try {
         await img.decode();
       } catch {
-        /* ignore decode errors */
+        /* ignore */
       }
     }
   };
-
   const timer = window.setTimeout(done, timeoutMs);
   void Promise.all(imgs.map(settle)).then(() => {
     window.clearTimeout(timer);
     done();
   });
+}
+
+/**
+ * Defer MP4 until LCP has a chance to lock on the poster/text.
+ * Starting showreel early makes <video> the LCP on Slow‑4G (~5s).
+ */
+function afterLcp(fn: () => void, fallbackMs = 2800): void {
+  let finished = false;
+  const done = () => {
+    if (finished) return;
+    finished = true;
+    fn();
+  };
+  const fallback = window.setTimeout(done, fallbackMs);
+  try {
+    const po = new PerformanceObserver((list) => {
+      if (!list.getEntries().length) return;
+      window.clearTimeout(fallback);
+      // One frame after LCP paint so the metric can finalize on the poster.
+      requestAnimationFrame(() => setTimeout(done, 50));
+      po.disconnect();
+    });
+    po.observe({ type: 'largest-contentful-paint', buffered: true });
+  } catch {
+    /* PerformanceObserver unsupported */
+  }
 }
 
 /** Drop hero MP4 when scrolled away so lazy team images can finish. */
@@ -328,19 +354,20 @@ function initBgVideos(): void {
     return;
   }
 
-  // Wi‑Fi / LTE / unknown: images first, then autoplay.
   initGestureUnlock();
   initLateAutoplayRetries();
   initScrollBandwidthYield();
 
-  whenEagerImagesReady(() => {
-    document.querySelectorAll<HTMLElement>('[data-bg-video]').forEach((wrap) => {
-      if (wrap.getAttribute('data-bg-video-priority') === 'hero') {
-        playBgVideo(wrap);
-        return;
-      }
-      // Scope: start only when near — and only after images (gate above).
-      whenNear(wrap, () => playBgVideo(wrap));
+  // Poster ready → LCP can lock → then autoplay (Wi‑Fi / LTE).
+  whenHeroPosterReady(() => {
+    afterLcp(() => {
+      document.querySelectorAll<HTMLElement>('[data-bg-video]').forEach((wrap) => {
+        if (wrap.getAttribute('data-bg-video-priority') === 'hero') {
+          playBgVideo(wrap);
+          return;
+        }
+        whenNear(wrap, () => playBgVideo(wrap));
+      });
     });
   });
 }
