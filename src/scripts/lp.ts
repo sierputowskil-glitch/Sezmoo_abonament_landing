@@ -31,6 +31,11 @@ function preferManualVideo(): boolean {
   return typeof conn.downlink === 'number' && conn.downlink > 0 && conn.downlink < 1.5;
 }
 
+/** Phone / coarse pointer: scope MP4s must not compete with lazy portfolio images. */
+function isMobileLike(): boolean {
+  return !!window.matchMedia?.('(max-width: 900px), (pointer: coarse)').matches;
+}
+
 function initStickyMbar(): void {
   const bar = document.getElementById('mbar');
   const form = document.getElementById('kontakt');
@@ -271,9 +276,9 @@ function prepareManualPlay(wrap: HTMLElement): void {
 function afterImagesHaveHeadroom(fn: () => void): void {
   const start = () => {
     if ('requestIdleCallback' in window) {
-      window.requestIdleCallback(fn, { timeout: 1800 });
+      window.requestIdleCallback(fn, { timeout: 2500 });
     } else {
-      setTimeout(fn, 400);
+      setTimeout(fn, 800);
     }
   };
   if (document.readyState === 'complete') start();
@@ -283,6 +288,7 @@ function afterImagesHaveHeadroom(fn: () => void): void {
 function initBgVideos(): void {
   const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   const constrained = preferManualVideo();
+  const mobile = isMobileLike();
 
   if (reduce || constrained) {
     // No autoplay — poster + play. MP4 stays on data-src until tap (faster LTE paint).
@@ -296,11 +302,17 @@ function initBgVideos(): void {
   initLateAutoplayRetries();
 
   document.querySelectorAll<HTMLElement>('[data-bg-video]').forEach((wrap) => {
-    if (wrap.getAttribute('data-bg-video-priority') === 'hero') {
+    const isHero = wrap.getAttribute('data-bg-video-priority') === 'hero';
+    // Mobile Wi‑Fi: only hero may autoplay. Scope stays poster+play so works/team
+    // webps are not starved by audi-rs3 / jaecoo (~6MB).
+    if (!isHero && mobile) {
+      prepareManualPlay(wrap);
+      return;
+    }
+    if (isHero) {
       afterImagesHaveHeadroom(() => playBgVideo(wrap));
       return;
     }
-    // Scope clips: only when near, and only after load so works/team images win first.
     afterImagesHaveHeadroom(() => {
       whenNear(wrap, () => playBgVideo(wrap));
     });

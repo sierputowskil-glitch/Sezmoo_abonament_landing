@@ -26,7 +26,7 @@ const works = (await getCollection('works')).sort((a, b) => a.data.order - b.dat
                     widths={[480, 720, 960]}
                     sizes="(min-width: 900px) 30vw, 80vw"
                     format="webp"
-                    loading="lazy"
+                    loading="eager"
                     decoding="async"
                     style={d.contain ? 'object-fit:contain' : undefined}
                   />
