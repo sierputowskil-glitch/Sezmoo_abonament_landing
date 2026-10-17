@@ -4,6 +4,7 @@
  *
  * Prod differs from local: GTM + CookieYes mount late and can block the first
  * muted autoplay attempt. Retries after load / consent UI / gesture.
+ * Low Data Mode: no autoplay — show an explicit play control instead.
  */
 
 type NetworkInformation = { saveData?: boolean };
@@ -63,7 +64,9 @@ function armMutedInline(v: HTMLVideoElement): void {
 }
 
 function markPlaying(v: HTMLVideoElement): void {
-  v.closest('[data-bg-video]')?.classList.add('is-playing');
+  const wrap = v.closest('[data-bg-video]');
+  wrap?.classList.add('is-playing');
+  wrap?.querySelector('.bg-video-play')?.remove();
 }
 
 function attachSrc(v: HTMLVideoElement): void {
@@ -99,7 +102,9 @@ function tryPlayBgVideo(v: HTMLVideoElement): void {
   pauseOffscreenBgVideos(v);
   const attempt = v.play();
   if (attempt === undefined) return;
-  void attempt.then(() => markPlaying(v)).catch(() => {});
+  void attempt.then(() => markPlaying(v)).catch(() => {
+    showPlayControl(v.closest('[data-bg-video]') as HTMLElement | null);
+  });
 }
 
 function playBgVideo(wrap: HTMLElement): void {
@@ -111,6 +116,34 @@ function playBgVideo(wrap: HTMLElement): void {
   v.addEventListener('canplay', () => tryPlayBgVideo(v), { once: true });
   v.addEventListener('loadeddata', () => tryPlayBgVideo(v), { once: true });
   tryPlayBgVideo(v);
+}
+
+/** Manual play for Low Data Mode / blocked autoplay — runs inside a user gesture. */
+function showPlayControl(wrap: HTMLElement | null): void {
+  if (!wrap || wrap.classList.contains('is-playing')) return;
+  if (wrap.querySelector('.bg-video-play')) return;
+  const v = wrap.querySelector('video');
+  if (!(v instanceof HTMLVideoElement)) return;
+
+  armMutedInline(v);
+  attachSrc(v);
+  v.removeAttribute('autoplay');
+
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'bg-video-play';
+  btn.setAttribute('aria-label', 'Odtwórz wideo');
+  btn.innerHTML =
+    '<span class="bg-video-play__ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>';
+  btn.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    armMutedInline(v);
+    attachSrc(v);
+    pauseOffscreenBgVideos(v);
+    void v.play().then(() => markPlaying(v)).catch(() => {});
+  });
+  wrap.appendChild(btn);
 }
 
 function whenNear(el: HTMLElement, fn: () => void): void {
@@ -178,10 +211,17 @@ function initLateAutoplayRetries(): void {
   setTimeout(() => mo.disconnect(), 15000);
 }
 
+function prepareManualPlay(wrap: HTMLElement): void {
+  const v = wrap.querySelector('video');
+  if (!(v instanceof HTMLVideoElement)) return;
+  armMutedInline(v);
+  attachSrc(v);
+  v.removeAttribute('autoplay');
+  v.addEventListener('playing', () => markPlaying(v));
+  showPlayControl(wrap);
+}
+
 function initBgVideos(): void {
-  // Accessibility only — do NOT couple this to saveData / Low Data Mode.
-  // iOS Low Data Mode sets navigator.connection.saveData and was stripping
-  // src+autoplay, leaving an empty <video> under the poster (prod mobile).
   const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   if (reduce) {
     document.querySelectorAll<HTMLVideoElement>('[data-bg-video] video').forEach((v) => {
@@ -195,17 +235,22 @@ function initBgVideos(): void {
 
   const saveData = getSaveData();
 
+  if (saveData) {
+    // Low Data Mode: keep src, no autoplay — explicit play control (user gesture + bandwidth choice).
+    document.querySelectorAll<HTMLElement>('[data-bg-video]').forEach((wrap) => {
+      prepareManualPlay(wrap);
+    });
+    return;
+  }
+
   initGestureUnlock();
   initLateAutoplayRetries();
 
   document.querySelectorAll<HTMLElement>('[data-bg-video]').forEach((wrap) => {
-    const isHero = wrap.getAttribute('data-bg-video-priority') === 'hero';
-    // On Low Data Mode still autoplay the hero showreel; defer scope clips.
-    if (isHero) {
+    if (wrap.getAttribute('data-bg-video-priority') === 'hero') {
       playBgVideo(wrap);
       return;
     }
-    if (saveData) return;
     whenNear(wrap, () => playBgVideo(wrap));
   });
 }

@@ -77,6 +77,11 @@ button{font:inherit;cursor:pointer}
 .hero__frame img{z-index:0}
 .hero__frame video{z-index:1;pointer-events:none;-webkit-transform:translateZ(0);transform:translateZ(0)}
 .hero__frame.is-playing img{opacity:0}
+.bg-video-play{position:absolute;inset:0;z-index:3;display:grid;place-items:center;margin:0;padding:0;border:0;background:rgb(10 8 6 / .28);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.bg-video-play:focus-visible{outline:2px solid var(--y);outline-offset:-6px}
+.bg-video-play__ico{display:grid;place-items:center;width:64px;height:64px;border-radius:50%;background:var(--y);color:var(--on-y);box-shadow:0 8px 24px rgb(0 0 0 / .28)}
+.bg-video-play__ico svg{width:28px;height:28px;margin-left:3px}
+.hero__frame.is-playing .bg-video-play,.scope__img--vid.is-playing .bg-video-play{display:none}
 .hero__tc{position:absolute;left:14px;top:48px;display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--ink-fg);background:rgb(10 8 6 / .6);padding:5px 9px;border-radius:3px;z-index:2}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--y);flex:none}
 .hero__tc .dot{animation:rec 1.6s infinite}
@@ -244,6 +249,8 @@ button{font:inherit;cursor:pointer}
 .scope__img--vid img{z-index:0}
 .scope__img--vid video{z-index:1;pointer-events:none;-webkit-transform:translateZ(0);transform:translateZ(0)}
 .scope__img--vid.is-playing img{opacity:0}
+.scope__img--vid .bg-video-play__ico{width:52px;height:52px}
+.scope__img--vid .bg-video-play__ico svg{width:22px;height:22px}
 .scope h3{font-size:24px;font-weight:800;letter-spacing:-.015em;margin-top:18px}
 .scope p{color:var(--fg-dim);font-size:16px;margin-top:6px}
 @media (min-width:981px){.scope li:nth-child(even){margin-top:56px}}
