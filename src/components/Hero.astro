@@ -69,10 +69,12 @@ const poster = await getImage({
           height={720}
         />
         <video
+          autoplay
           muted
           loop
           playsinline
-          preload="none"
+          webkit-playsinline
+          preload="metadata"
           aria-hidden="true"
           data-src="/assets/abonament/video/showreel.mp4"
           poster={poster.src}

@@ -46,16 +46,64 @@ function initPack60Preset(): void {
   });
 }
 
+const blockedBgVideos = new Set<HTMLVideoElement>();
+let gestureUnlockBound = false;
+
+/** iOS/WebKit: muted + playsInline must be JS properties, not only HTML attributes. */
+function armMutedInline(v: HTMLVideoElement): void {
+  v.muted = true;
+  v.defaultMuted = true;
+  v.playsInline = true;
+  v.autoplay = true;
+  v.setAttribute('muted', '');
+  v.setAttribute('playsinline', '');
+  v.setAttribute('webkit-playsinline', '');
+  v.setAttribute('autoplay', '');
+}
+
+function unlockBgVideosOnGesture(): void {
+  if (gestureUnlockBound) return;
+  gestureUnlockBound = true;
+  const kick = () => {
+    blockedBgVideos.forEach((v) => {
+      armMutedInline(v);
+      void v.play().then(() => blockedBgVideos.delete(v)).catch(() => {});
+    });
+  };
+  const opts: AddEventListenerOptions = { once: true, passive: true };
+  document.addEventListener('pointerdown', kick, opts);
+  document.addEventListener('touchstart', kick, opts);
+  document.addEventListener('click', kick, opts);
+}
+
+function tryPlayBgVideo(v: HTMLVideoElement): void {
+  armMutedInline(v);
+  const attempt = v.play();
+  if (attempt === undefined) return;
+  void attempt.catch((err: unknown) => {
+    const name = err instanceof Error ? err.name : '';
+    if (name === 'AbortError') return;
+    blockedBgVideos.add(v);
+    unlockBgVideosOnGesture();
+  });
+}
+
 function playBgVideo(wrap: HTMLElement): void {
   const v = wrap.querySelector('video');
   if (!(v instanceof HTMLVideoElement)) return;
   const lazy = v.getAttribute('data-src');
   if (lazy && !v.getAttribute('src')) {
+    armMutedInline(v);
     v.src = lazy;
     v.removeAttribute('data-src');
-    v.load();
   }
-  void v.play().catch(() => {});
+
+  if (v.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+    tryPlayBgVideo(v);
+    return;
+  }
+  v.addEventListener('canplay', () => tryPlayBgVideo(v), { once: true });
+  tryPlayBgVideo(v);
 }
 
 /** Defer work until LCP is painted so hero MP4 does not contend with the poster. */
