@@ -262,9 +262,16 @@ if (typeof jsonLd === 'string' && jsonLd.trim()) {
 
     <slot />
 
-    {enableGtm && <script>import '../scripts/gtm';</script>}
+    {/*
+      Single client script — Astro conditional <script> for GTM was displacing
+      the lp module (HTML pointed at gtm-only virtual module → no desktop autoplay).
+    */}
     <script>
       import '../scripts/lp';
+      import { PUBLIC_ENABLE_GTM } from 'astro:env/client';
+      if (PUBLIC_ENABLE_GTM === true) {
+        void import('../scripts/gtm');
+      }
     </script>
   </body>
 </html>

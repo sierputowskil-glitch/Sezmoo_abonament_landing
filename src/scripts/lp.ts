@@ -299,9 +299,13 @@ function whenHeroPosterReady(fn: () => void, timeoutMs = 2500): void {
   });
 }
 
+function isDesktopLike(): boolean {
+  return !!window.matchMedia?.('(min-width: 901px) and (pointer: fine)').matches;
+}
+
 /**
- * Defer MP4 until LCP has a chance to lock on the poster/text.
- * Starting showreel early makes <video> the LCP on Slow‑4G (~5s).
+ * Defer MP4 until LCP can lock on the poster (mobile / Slow‑4G).
+ * Desktop: almost immediate — long wait looked like “no autoplay”.
  */
 function afterLcp(fn: () => void, fallbackMs = 2800): void {
   let finished = false;
@@ -310,18 +314,38 @@ function afterLcp(fn: () => void, fallbackMs = 2800): void {
     finished = true;
     fn();
   };
+
+  // Desktop Wi‑Fi: poster is enough; don't sit on LCP for ~3s.
+  if (isDesktopLike()) {
+    requestAnimationFrame(() => setTimeout(done, 120));
+    return;
+  }
+
+  const kick = () => {
+    requestAnimationFrame(() => setTimeout(done, 50));
+  };
+
+  try {
+    const already = performance.getEntriesByType('largest-contentful-paint');
+    if (already.length) {
+      kick();
+      return;
+    }
+  } catch {
+    /* ignore */
+  }
+
   const fallback = window.setTimeout(done, fallbackMs);
   try {
     const po = new PerformanceObserver((list) => {
       if (!list.getEntries().length) return;
       window.clearTimeout(fallback);
-      // One frame after LCP paint so the metric can finalize on the poster.
-      requestAnimationFrame(() => setTimeout(done, 50));
+      kick();
       po.disconnect();
     });
     po.observe({ type: 'largest-contentful-paint', buffered: true });
   } catch {
-    /* PerformanceObserver unsupported */
+    /* PerformanceObserver unsupported — fallback timer only */
   }
 }
 

@@ -29,3 +29,8 @@ dist/
 .astro/
 .wrangler/
 .tmp*
+
+# Raw YT downloads (encode → public/assets/abonament/video/)
+video-drop/*
+!video-drop/.gitkeep
+!video-drop/README.md
