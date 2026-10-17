@@ -178,16 +178,6 @@
   .cky-revisit-bottom-left {
     bottom: 100px !important;
   }
-
-  .cky-btn-revisit-wrapper {
-    width: initial !important;
-    height: initial !important;
-  }
-
-  .cky-btn-revisit-wrapper .cky-btn-revisit img {
-    width: initial !important;
-    height: initial !important;
-  }
 }
 
 /* —— Hide CookieYes branding —— */
