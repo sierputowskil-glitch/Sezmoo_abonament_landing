@@ -1,6 +1,9 @@
 /**
  * LP client: sticky mbar, data-cta → dataLayer lp_cta_click,
  * self-hosted muted background videos (no YouTube iframe).
+ *
+ * Prod differs from local: GTM + CookieYes mount late and can block the first
+ * muted autoplay attempt. Retries after load / consent UI / gesture.
  */
 
 type NetworkInformation = { saveData?: boolean };
@@ -72,12 +75,28 @@ function attachSrc(v: HTMLVideoElement): void {
   v.removeAttribute('data-src');
 }
 
+function isInViewport(el: Element): boolean {
+  const r = el.getBoundingClientRect();
+  const vh = window.innerHeight || document.documentElement.clientHeight;
+  const vw = window.innerWidth || document.documentElement.clientWidth;
+  return r.bottom > 0 && r.right > 0 && r.top < vh && r.left < vw;
+}
+
+/** iOS often allows only one decoder — free slots for the visible clip. */
+function pauseOffscreenBgVideos(except?: HTMLVideoElement): void {
+  document.querySelectorAll<HTMLVideoElement>('[data-bg-video] video').forEach((v) => {
+    if (v === except || v.paused) return;
+    if (!isInViewport(v)) v.pause();
+  });
+}
+
 function tryPlayBgVideo(v: HTMLVideoElement): void {
   armMutedInline(v);
   if (!v.paused) {
     markPlaying(v);
     return;
   }
+  pauseOffscreenBgVideos(v);
   const attempt = v.play();
   if (attempt === undefined) return;
   void attempt.then(() => markPlaying(v)).catch(() => {});
@@ -112,19 +131,51 @@ function whenNear(el: HTMLElement, fn: () => void): void {
   io.observe(el);
 }
 
-/** Low Power Mode: play() must run synchronously inside a user gesture. */
+function kickVisiblePaused(): void {
+  document.querySelectorAll<HTMLVideoElement>('[data-bg-video] video').forEach((v) => {
+    if (!v.getAttribute('src') && v.getAttribute('data-src')) attachSrc(v);
+    if (v.paused && isInViewport(v)) tryPlayBgVideo(v);
+    else if (!v.paused) markPlaying(v);
+  });
+}
+
+/** Low Power Mode / CookieYes first tap: play() must run inside a user gesture. */
 function initGestureUnlock(): void {
-  const kick = () => {
-    document.querySelectorAll<HTMLVideoElement>('[data-bg-video] video').forEach((v) => {
-      const wrap = v.closest<HTMLElement>('[data-bg-video]');
-      if (wrap && !v.getAttribute('src') && v.getAttribute('data-src')) attachSrc(v);
-      if (v.paused) tryPlayBgVideo(v);
-    });
-  };
   const opts: AddEventListenerOptions = { capture: true, passive: true };
-  window.addEventListener('pointerdown', kick, opts);
-  window.addEventListener('touchstart', kick, opts);
-  window.addEventListener('click', kick, opts);
+  window.addEventListener('pointerdown', kickVisiblePaused, opts);
+  window.addEventListener('touchstart', kickVisiblePaused, opts);
+  window.addEventListener('click', kickVisiblePaused, opts);
+}
+
+/**
+ * Prod-only delay: CookieYes (via GTM) mounts after first paint and can steal the
+ * first autoplay window. Retry a few times after load / when the bar is dismissed.
+ */
+function initLateAutoplayRetries(): void {
+  const delays = [400, 1200, 2500, 5000];
+  const run = () => kickVisiblePaused();
+  if (document.readyState === 'complete') {
+    delays.forEach((ms) => setTimeout(run, ms));
+  } else {
+    window.addEventListener(
+      'load',
+      () => delays.forEach((ms) => setTimeout(run, ms)),
+      { once: true },
+    );
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') run();
+  });
+
+  if (!('MutationObserver' in window)) return;
+  const mo = new MutationObserver(() => run());
+  mo.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['class', 'style', 'hidden', 'aria-hidden'],
+  });
+  setTimeout(() => mo.disconnect(), 15000);
 }
 
 function initBgVideos(): void {
@@ -140,6 +191,7 @@ function initBgVideos(): void {
   }
 
   initGestureUnlock();
+  initLateAutoplayRetries();
 
   document.querySelectorAll<HTMLElement>('[data-bg-video]').forEach((wrap) => {
     if (wrap.getAttribute('data-bg-video-priority') === 'hero') {
