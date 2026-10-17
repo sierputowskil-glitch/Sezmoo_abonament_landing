@@ -74,11 +74,12 @@ function attachSrc(v: HTMLVideoElement): void {
 
 function tryPlayBgVideo(v: HTMLVideoElement): void {
   armMutedInline(v);
-  const attempt = v.play();
-  if (attempt === undefined) {
-    if (!v.paused) markPlaying(v);
+  if (!v.paused) {
+    markPlaying(v);
     return;
   }
+  const attempt = v.play();
+  if (attempt === undefined) return;
   void attempt.then(() => markPlaying(v)).catch(() => {});
 }
 
@@ -89,6 +90,7 @@ function playBgVideo(wrap: HTMLElement): void {
   attachSrc(v);
   v.addEventListener('playing', () => markPlaying(v));
   v.addEventListener('canplay', () => tryPlayBgVideo(v), { once: true });
+  v.addEventListener('loadeddata', () => tryPlayBgVideo(v), { once: true });
   tryPlayBgVideo(v);
 }
 

@@ -1,10 +1,10 @@
 ---
 import { Image } from 'astro:assets';
-import { getHeroVideoPoster, HERO_LCP_SIZES, HERO_LCP_WIDTHS, showreelPoster } from '../lib/lcp';
+import { HERO_LCP_SIZES, HERO_LCP_WIDTHS, showreelPoster } from '../lib/lcp';
 import { publicUrl } from '../lib/publicUrl';
 
 const lcpSizes = HERO_LCP_SIZES;
-const poster = await getHeroVideoPoster();
+const showreelSrc = publicUrl('assets/abonament/video/showreel.mp4');
 ---
 
 <section class="hero" id="top">
@@ -66,13 +66,17 @@ const poster = await getHeroVideoPoster();
           height={720}
         />
         <video
+          autoplay
           muted
           loop
           playsinline
-          preload="none"
+          webkit-playsinline
+          preload="auto"
+          width="1280"
+          height="720"
           aria-hidden="true"
-          data-src={publicUrl('assets/abonament/video/showreel.mp4')}
-          poster={poster.src}></video>
+          src={showreelSrc}
+        ></video>
       </div>
       <span class="hero__tc"><span class="dot"></span>SEZMOO · SHOWREEL 2026</span>
       <svg class="hero__tear" fill="#F5F3EF" aria-hidden="true"><use href="#tear"></use></svg>
