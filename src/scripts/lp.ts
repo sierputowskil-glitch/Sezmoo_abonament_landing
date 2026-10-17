@@ -288,10 +288,11 @@ function afterImagesHaveHeadroom(fn: () => void): void {
 function initBgVideos(): void {
   const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   const constrained = preferManualVideo();
+  // Phone Wi‑Fi: same as LTE — no autoplay. Hero showreel (~4MB) was starving
+  // everything below the fold after LTE→Wi‑Fi refresh.
   const mobile = isMobileLike();
 
-  if (reduce || constrained) {
-    // No autoplay — poster + play. MP4 stays on data-src until tap (faster LTE paint).
+  if (reduce || constrained || mobile) {
     document.querySelectorAll<HTMLElement>('[data-bg-video]').forEach((wrap) => {
       prepareManualPlay(wrap);
     });
@@ -302,14 +303,7 @@ function initBgVideos(): void {
   initLateAutoplayRetries();
 
   document.querySelectorAll<HTMLElement>('[data-bg-video]').forEach((wrap) => {
-    const isHero = wrap.getAttribute('data-bg-video-priority') === 'hero';
-    // Mobile Wi‑Fi: only hero may autoplay. Scope stays poster+play so works/team
-    // webps are not starved by audi-rs3 / jaecoo (~6MB).
-    if (!isHero && mobile) {
-      prepareManualPlay(wrap);
-      return;
-    }
-    if (isHero) {
+    if (wrap.getAttribute('data-bg-video-priority') === 'hero') {
       afterImagesHaveHeadroom(() => playBgVideo(wrap));
       return;
     }
