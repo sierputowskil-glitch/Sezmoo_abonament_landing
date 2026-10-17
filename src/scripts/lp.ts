@@ -3,9 +3,9 @@
  * self-hosted muted background videos (no YouTube iframe).
  *
  * Videos use data-src so MP4s do not compete with lazy images on first paint.
- * On Save-Data / cellular / slow effectiveType: play control only.
- * On Wi‑Fi: one clip at a time, after window load / idle — never attach all
- * scope sources from CookieYes retries (that starved the page bottom).
+ * Save-Data / slow-2g/2g: play control only.
+ * Otherwise autoplay after eager images settle; offscreen clips release bandwidth
+ * on scroll so Wi‑Fi showreel does not starve below-the-fold content.
  */
 
 type NetworkInformation = {
@@ -19,19 +19,21 @@ function getConnection(): NetworkInformation | undefined {
   return (navigator as Navigator & { connection?: NetworkInformation }).connection;
 }
 
-/** Save-Data, cellular, slow effectiveType, or very low downlink → manual play. */
+/**
+ * Save-Data or truly slow nets → manual play.
+ * Do NOT gate on connection.type === 'cellular': iOS often has no API (autoplay
+ * on LTE is fine), and forcing play-only on LTE broke the intended UX.
+ */
 function preferManualVideo(): boolean {
   const conn = getConnection();
   if (!conn) return false;
   if (conn.saveData) return true;
-  const type = (conn.type || '').toLowerCase();
-  if (type === 'cellular') return true;
   const eff = (conn.effectiveType || '').toLowerCase();
-  if (eff === 'slow-2g' || eff === '2g' || eff === '3g') return true;
-  return typeof conn.downlink === 'number' && conn.downlink > 0 && conn.downlink < 1.5;
+  if (eff === 'slow-2g' || eff === '2g') return true;
+  return typeof conn.downlink === 'number' && conn.downlink > 0 && conn.downlink < 1.0;
 }
 
-/** Phone / coarse pointer: scope MP4s must not compete with lazy portfolio images. */
+/** Phone / coarse pointer. */
 function isMobileLike(): boolean {
   return !!window.matchMedia?.('(max-width: 900px), (pointer: coarse)').matches;
 }
@@ -124,12 +126,18 @@ function releaseOffscreenVideoBandwidth(except?: HTMLVideoElement): void {
     if (!src) return;
     if (!v.getAttribute('data-src')) v.setAttribute('data-src', src);
     v.removeAttribute('src');
-    v.pause();
+    try {
+      v.pause();
+    } catch {
+      /* ignore */
+    }
     try {
       v.load();
     } catch {
       /* ignore */
     }
+    const wrap = v.closest('[data-bg-video]');
+    wrap?.classList.remove('is-playing');
   });
 }
 
@@ -176,7 +184,7 @@ function deferVideoSrc(v: HTMLVideoElement): void {
   v.preload = 'none';
 }
 
-/** Manual play for Save-Data / LTE / blocked autoplay — runs inside a user gesture. */
+/** Manual play for Save-Data / blocked autoplay — runs inside a user gesture. */
 function showPlayControl(wrap: HTMLElement | null): void {
   if (!wrap || wrap.classList.contains('is-playing')) return;
   if (wrap.querySelector('.bg-video-play')) return;
@@ -273,26 +281,77 @@ function prepareManualPlay(wrap: HTMLElement): void {
   showPlayControl(wrap);
 }
 
-function afterImagesHaveHeadroom(fn: () => void): void {
-  const start = () => {
+/** Wait until eager/LCP images have decoded (or timeout) before any MP4. */
+function whenEagerImagesReady(fn: () => void, timeoutMs = 4500): void {
+  const imgs = [
+    ...document.querySelectorAll<HTMLImageElement>(
+      'img[loading="eager"], img[fetchpriority="high"]',
+    ),
+  ];
+  let finished = false;
+  const done = () => {
+    if (finished) return;
+    finished = true;
+    fn();
+  };
+
+  const pending = imgs.filter((img) => !(img.complete && img.naturalWidth > 0));
+  if (pending.length === 0) {
     if ('requestIdleCallback' in window) {
-      window.requestIdleCallback(fn, { timeout: 2500 });
+      window.requestIdleCallback(done, { timeout: 600 });
     } else {
-      setTimeout(fn, 800);
+      setTimeout(done, 200);
+    }
+    return;
+  }
+
+  const timer = window.setTimeout(done, timeoutMs);
+  let left = pending.length;
+  const one = () => {
+    left -= 1;
+    if (left <= 0) {
+      window.clearTimeout(timer);
+      done();
     }
   };
-  if (document.readyState === 'complete') start();
-  else window.addEventListener('load', start, { once: true });
+  pending.forEach((img) => {
+    img.addEventListener('load', one, { once: true });
+    img.addEventListener('error', one, { once: true });
+  });
+}
+
+/**
+ * When hero leaves the viewport, drop its MP4 download so lazy team/works
+ * images below can finish — Wi‑Fi was saturating on showreel (~4MB).
+ */
+function initScrollBandwidthYield(): void {
+  let ticking = false;
+  const yieldOffscreen = () => {
+    ticking = false;
+    const heroWrap = document.querySelector<HTMLElement>('[data-bg-video-priority="hero"]');
+    const heroVid = heroWrap?.querySelector('video');
+    if (!(heroVid instanceof HTMLVideoElement)) return;
+    if (isInViewport(heroVid)) return;
+    if (!heroVid.getAttribute('src')) return;
+    releaseOffscreenVideoBandwidth();
+  };
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(yieldOffscreen);
+    },
+    { passive: true },
+  );
 }
 
 function initBgVideos(): void {
   const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   const constrained = preferManualVideo();
-  // Phone Wi‑Fi: same as LTE — no autoplay. Hero showreel (~4MB) was starving
-  // everything below the fold after LTE→Wi‑Fi refresh.
   const mobile = isMobileLike();
 
-  if (reduce || constrained || mobile) {
+  if (reduce || constrained) {
     document.querySelectorAll<HTMLElement>('[data-bg-video]').forEach((wrap) => {
       prepareManualPlay(wrap);
     });
@@ -301,13 +360,21 @@ function initBgVideos(): void {
 
   initGestureUnlock();
   initLateAutoplayRetries();
+  initScrollBandwidthYield();
 
   document.querySelectorAll<HTMLElement>('[data-bg-video]').forEach((wrap) => {
-    if (wrap.getAttribute('data-bg-video-priority') === 'hero') {
-      afterImagesHaveHeadroom(() => playBgVideo(wrap));
+    const isHero = wrap.getAttribute('data-bg-video-priority') === 'hero';
+    // Mobile: hero autoplays after eager images; scope stays play-to-load
+    // so a second MP4 never races portfolio webps on Wi‑Fi.
+    if (!isHero && mobile) {
+      prepareManualPlay(wrap);
       return;
     }
-    afterImagesHaveHeadroom(() => {
+    if (isHero) {
+      whenEagerImagesReady(() => playBgVideo(wrap));
+      return;
+    }
+    whenEagerImagesReady(() => {
       whenNear(wrap, () => playBgVideo(wrap));
     });
   });
