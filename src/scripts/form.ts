@@ -51,8 +51,7 @@ export function initContactForm(formId = 'abonament-form'): void {
 
   const host = document.createElement('div');
   host.setAttribute('aria-hidden', 'true');
-  host.style.cssText =
-    'position:absolute;width:0;height:0;overflow:hidden;clip:rect(0,0,0,0);';
+  host.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden;clip:rect(0,0,0,0);';
   f.appendChild(host);
 
   function contactUrl(): string {
@@ -229,9 +228,7 @@ export function initContactForm(formId = 'abonament-form'): void {
     const m = meta();
     challenge()
       .then(() => fetch(url, { method: 'POST', body: new FormData(f) }))
-      .then((r) =>
-        r.json().catch(() => ({ ok: false, error: 'Nieprawidłowa odpowiedź serwera' })),
-      )
+      .then((r) => r.json().catch(() => ({ ok: false, error: 'Nieprawidłowa odpowiedź serwera' })))
       .then((d: { ok?: boolean; error?: string }) => {
         if (d && d.ok) {
           dlPush({

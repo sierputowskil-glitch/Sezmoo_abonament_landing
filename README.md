@@ -3,7 +3,7 @@
 Astro (static) + Cloudflare Pages Function for the contact form.
 
 - **Canonical:** https://abonament.sezmoo.com/
-- **GTM:** `GTM-KJFG8DZL` (only when `PUBLIC_ENABLE_GTM=true` in prod CI)
+- **GTM:** `GTM-KJFG8DZL` (only when `PUBLIC_ENABLE_GTM=true` in prod CI); CookieYes is a tag inside the container
 - **Phone:** +48 739 260 450
 - **Legacy HTML/PHP:** branch `legacy/cyberfolks-html`
 
@@ -30,7 +30,8 @@ Same project as production: **`sezmoo-abonament`**. Non-`main` branches deploy a
 
 - URL: `https://<hash>.sezmoo-abonament.pages.dev` (branch alias often `https://<branch>.sezmoo-abonament.pages.dev`)
 - **Noindex:** staging builds set `PUBLIC_ROBOTS=noindex` (+ auto for `*.pages.dev`)
-- **Turnstile:** invisible always-pass test site key `1x00000000000000000000BB`
+- **Turnstile:** no dummy site key. Preview Function rejects Cloudflare test secrets unless `ALLOW_TURNSTILE_TEST=1` (local only).
+- **Mail:** preview hosts (`*.pages.dev`) never send to `MAIL_TO`. Set `MAIL_TO_PREVIEW` in the Pages Preview environment (sink inbox) or the form returns 503.
 - **GTM:** off
 - In `.env`: `PROD_CLOUDFLARE_ACCOUNT_ID`, `PROD_CLOUDFLARE_API_TOKEN` (never commit)
 

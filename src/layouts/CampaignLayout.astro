@@ -2,7 +2,6 @@
 import '../styles/fonts.css';
 import '../styles/lp.css';
 import '../styles/cookieyes.css';
-import { getImage } from 'astro:assets';
 import archivoLatin from '@fontsource-variable/archivo/files/archivo-latin-standard-normal.woff2?url';
 import archivoLatinExt from '@fontsource-variable/archivo/files/archivo-latin-ext-standard-normal.woff2?url';
 import {
@@ -12,7 +11,9 @@ import {
   PUBLIC_TURNSTILE_SITE_KEY,
 } from 'astro:env/client';
 import { GTM_ID, siteOrigin } from '../lib/site';
-import showreelPoster from '../assets/abonament/showreel-poster-landscape.webp';
+import { serializeJsonLd } from '../lib/jsonLd';
+import { getHeroLcpImage, HERO_LCP_SIZES } from '../lib/lcp';
+import { publicUrl } from '../lib/publicUrl';
 
 interface Props {
   title: string;
@@ -23,17 +24,10 @@ interface Props {
   jsonLd?: string | Record<string, unknown> | Array<Record<string, unknown>>;
 }
 
-const {
-  title,
-  description = '',
-  canonical,
-  ogTitle,
-  ogDescription,
-  jsonLd,
-} = Astro.props;
+const { title, description = '', canonical, ogTitle, ogDescription, jsonLd } = Astro.props;
 
 const origin = siteOrigin();
-const contactApi = PUBLIC_CONTACT_API_URL || '/api/contact';
+const contactApi = PUBLIC_CONTACT_API_URL || publicUrl('api/contact');
 const TURNSTILE_TEST_INVISIBLE = '1x00000000000000000000BB';
 const turnstileKey = import.meta.env.DEV
   ? TURNSTILE_TEST_INVISIBLE
@@ -42,34 +36,28 @@ const canon = canonical || new URL(Astro.url.pathname, origin + '/').href;
 const ogImg = `${origin}/og-image.png`;
 const enableGtm = PUBLIC_ENABLE_GTM === true;
 const noindex =
-  PUBLIC_ROBOTS === 'noindex' ||
-  origin.includes('pages.dev') ||
-  origin.includes('websky.pro');
+  PUBLIC_ROBOTS === 'noindex' || origin.includes('pages.dev') || origin.includes('websky.pro');
 const robotsContent = noindex ? 'noindex,follow' : 'index,follow';
 
-const lcpSizes = '(min-width: 981px) 55vw, 100vw';
-const lcpImage = await getImage({
-  src: showreelPoster,
-  widths: [800, 1280, 1920],
-  formats: ['webp'],
-});
+const lcpImage = await getHeroLcpImage();
+const lcpSizes = HERO_LCP_SIZES;
 
 const jsonLdBlocks: string[] = [];
 if (typeof jsonLd === 'string' && jsonLd.trim()) {
-  jsonLdBlocks.push(jsonLd);
+  jsonLdBlocks.push(jsonLd.replace(/</g, '\\u003c'));
 } else if (jsonLd && typeof jsonLd === 'object') {
-  jsonLdBlocks.push(JSON.stringify(jsonLd));
+  jsonLdBlocks.push(serializeJsonLd(jsonLd));
 }
 ---
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pl">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="icon" href="/favicon.png" sizes="any" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" href={publicUrl('favicon.svg')} type="image/svg+xml" />
+    <link rel="icon" href={publicUrl('favicon.png')} sizes="any" />
+    <link rel="apple-touch-icon" href={publicUrl('apple-touch-icon.png')} />
     <meta name="theme-color" content="#F5F3EF" />
     <meta property="og:image" content={ogImg} />
     <meta property="og:image:width" content="1200" />
@@ -116,19 +104,77 @@ if (typeof jsonLd === 'string' && jsonLd.trim()) {
         contactApiUrl: contactApi,
       };
     </script>
-    {/* CookieYes Free injects blue defaults as element style=… — paint live sezmoo.com theme after CMP mounts */}
+    {
+      /* CookieYes Free injects blue defaults as element style=… — paint live sezmoo.com theme after CMP mounts */
+    }
     <style is:inline>
-      .cky-consent-container .cky-consent-bar{background-color:#fff!important;border:1px solid #f4f4f4!important;border-radius:6px!important;box-shadow:0 -1px 10px 0 #acabab4d!important}
-      .cky-title,.cky-notice-des,.cky-notice-des *,.cky-notice-group,.cky-preference-title,.cky-preference-content-wrapper,.cky-accordion-btn,.cky-accordion-header-des{color:#212121!important}
-      .cky-policy,.cky-notice-des a.cky-policy,.cky-show-desc-btn{color:#ffd200!important}
-      .cky-btn{border-radius:2px!important;border-width:2px!important;font-size:14px!important;font-weight:500!important;text-transform:none!important;letter-spacing:normal!important;min-height:0!important;padding:8px!important}
-      .cky-btn-accept,.cky-btn-accept-all,.cky-preference-center .cky-btn-accept,.cky-btn-save-preferences{background-color:#ffd200!important;border-color:#ffd200!important;color:#000!important}
-      .cky-btn-reject,.cky-btn-reject-all,.cky-btn-customize,.cky-btn-preferences{background-color:transparent!important;border-color:#ffd200!important;color:#ffd200!important}
-      .cky-modal,.cky-preference-center{background-color:#fff!important;border-color:#f4f4f4!important;color:#212121!important;border-radius:6px!important}
-      .cky-switch input[type=checkbox]{background:#d0d5d2!important}
-      .cky-switch input[type=checkbox]:checked{background:#ffd200!important}
-      .cky-btn-revisit-wrapper{background-color:#ffd200!important}
-      [data-cky-tag=powered-by],[data-cky-tag=detail-powered-by]{display:none!important}
+      .cky-consent-container .cky-consent-bar {
+        background-color: #fff !important;
+        border: 1px solid #f4f4f4 !important;
+        border-radius: 6px !important;
+        box-shadow: 0 -1px 10px 0 #acabab4d !important;
+      }
+      .cky-title,
+      .cky-notice-des,
+      .cky-notice-des *,
+      .cky-notice-group,
+      .cky-preference-title,
+      .cky-preference-content-wrapper,
+      .cky-accordion-btn,
+      .cky-accordion-header-des {
+        color: #212121 !important;
+      }
+      .cky-policy,
+      .cky-notice-des a.cky-policy,
+      .cky-show-desc-btn {
+        color: #ffd200 !important;
+      }
+      .cky-btn {
+        border-radius: 2px !important;
+        border-width: 2px !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        text-transform: none !important;
+        letter-spacing: normal !important;
+        min-height: 0 !important;
+        padding: 8px !important;
+      }
+      .cky-btn-accept,
+      .cky-btn-accept-all,
+      .cky-preference-center .cky-btn-accept,
+      .cky-btn-save-preferences {
+        background-color: #ffd200 !important;
+        border-color: #ffd200 !important;
+        color: #000 !important;
+      }
+      .cky-btn-reject,
+      .cky-btn-reject-all,
+      .cky-btn-customize,
+      .cky-btn-preferences {
+        background-color: transparent !important;
+        border-color: #ffd200 !important;
+        color: #ffd200 !important;
+      }
+      .cky-modal,
+      .cky-preference-center {
+        background-color: #fff !important;
+        border-color: #f4f4f4 !important;
+        color: #212121 !important;
+        border-radius: 6px !important;
+      }
+      .cky-switch input[type='checkbox'] {
+        background: #d0d5d2 !important;
+      }
+      .cky-switch input[type='checkbox']:checked {
+        background: #ffd200 !important;
+      }
+      .cky-btn-revisit-wrapper {
+        background-color: #ffd200 !important;
+      }
+      [data-cky-tag='powered-by'],
+      [data-cky-tag='detail-powered-by'] {
+        display: none !important;
+      }
     </style>
     <script is:inline>
       (function () {
@@ -139,9 +185,18 @@ if (typeof jsonLd === 'string' && jsonLd.trim()) {
           ['.cky-notice-des', 'color:#212121'],
           ['.cky-policy', 'color:' + Y + ';border-color:transparent;background-color:transparent'],
           ['.cky-btn-accept', 'color:#000000;border-color:' + Y + ';background-color:#ffd200'],
-          ['.cky-btn-reject', 'color:' + Y + ';border-color:' + Y + ';background-color:transparent'],
-          ['.cky-btn-customize', 'color:' + Y + ';border-color:' + Y + ';background-color:transparent'],
-          ['.cky-btn-preferences', 'color:' + Y + ';border-color:' + Y + ';background-color:transparent'],
+          [
+            '.cky-btn-reject',
+            'color:' + Y + ';border-color:' + Y + ';background-color:transparent',
+          ],
+          [
+            '.cky-btn-customize',
+            'color:' + Y + ';border-color:' + Y + ';background-color:transparent',
+          ],
+          [
+            '.cky-btn-preferences',
+            'color:' + Y + ';border-color:' + Y + ';background-color:transparent',
+          ],
           ['.cky-preference-center', 'color:#212121;border-color:#F4F4F4;background-color:#FFFFFF'],
           ['.cky-preference-title', 'color:#212121'],
           ['.cky-btn-revisit-wrapper', 'background-color:' + Y],
@@ -175,7 +230,10 @@ if (typeof jsonLd === 'string' && jsonLd.trim()) {
                     n.id === 'cky-consent-container')
                 ) {
                   paint(n);
-                } else if (n.querySelector && n.querySelector('.cky-consent-bar,.cky-btn-accept,.cky-preference-center')) {
+                } else if (
+                  n.querySelector &&
+                  n.querySelector('.cky-consent-bar,.cky-btn-accept,.cky-preference-center')
+                ) {
                   paint(n);
                 }
               }
@@ -204,35 +262,7 @@ if (typeof jsonLd === 'string' && jsonLd.trim()) {
 
     <slot />
 
-    {
-      enableGtm && (
-        <script is:inline define:vars={{ GTM_ID }}>
-          (function () {
-            function loadGtm() {
-              if (window.__SEZMOO_GTM__) return;
-              window.__SEZMOO_GTM__ = true;
-              window.dataLayer = window.dataLayer || [];
-              window.dataLayer.push({ 'gtm.start': Date.now(), event: 'gtm.js' });
-              var f = document.getElementsByTagName('script')[0];
-              var j = document.createElement('script');
-              j.async = true;
-              j.src = 'https://www.googletagmanager.com/gtm.js?id=' + GTM_ID;
-              f.parentNode.insertBefore(j, f);
-            }
-            if (document.readyState === 'complete') {
-              if ('requestIdleCallback' in window) requestIdleCallback(loadGtm, { timeout: 3000 });
-              else setTimeout(loadGtm, 1);
-            } else {
-              window.addEventListener('load', function () {
-                if ('requestIdleCallback' in window)
-                  requestIdleCallback(loadGtm, { timeout: 3000 });
-                else setTimeout(loadGtm, 1);
-              });
-            }
-          })();
-        </script>
-      )
-    }
+    {enableGtm && <script>import '../scripts/gtm';</script>}
     <script>
       import '../scripts/lp';
     </script>

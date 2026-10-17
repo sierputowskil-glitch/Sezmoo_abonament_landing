@@ -9,15 +9,15 @@ const packs = (await getCollection('packages')).sort((a, b) => a.data.order - b.
     <div class="sec__head">
       <div>
         <p class="mono" style="margin-bottom:18px">Miesięczna pula godzin</p>
-        <h2 class="h2" id="packs-h"
-          ><span class="em">Elastyczny abonament.</span> Zakres zależny od&nbsp;Ciebie.</h2
-        >
+        <h2 class="h2" id="packs-h">
+          <span class="em">Elastyczny abonament.</span> Zakres zależny od&nbsp;Ciebie.
+        </h2>
       </div>
-      <p class="lead"
-        >Z&nbsp;jednej puli godzin korzystasz zależnie od&nbsp;bieżących potrzeb: raz wideo, raz sesja
-        fotograficzna, innym razem grafiki lub content do&nbsp;kanałów marki. Priorytety planujemy
-        wspólnie, a&nbsp;zespół pozostaje ten sam.</p
-      >
+      <p class="lead">
+        Z&nbsp;jednej puli godzin korzystasz zależnie od&nbsp;bieżących potrzeb: raz wideo, raz
+        sesja fotograficzna, innym razem grafiki lub content do&nbsp;kanałów marki. Priorytety
+        planujemy wspólnie, a&nbsp;zespół pozostaje ten sam.
+      </p>
     </div>
     <ul class="packs">
       {
@@ -35,8 +35,8 @@ const packs = (await getCollection('packages')).sort((a, b) => a.data.order - b.
               {d.badge && <span class="pack__badge">{d.badge}</span>}
               <p class="pack__h">{d.hours}</p>
               <div>
-                <h3 class="pack__t" set:html={d.title} />
-                <p class="pack__d" set:html={d.description} />
+                <h3 class="pack__t">{d.title}</h3>
+                <p class="pack__d">{d.description}</p>
               </div>
               <div class="pack__p">
                 <span class="mono">{d.priceLabel}</span>
@@ -44,7 +44,9 @@ const packs = (await getCollection('packages')).sort((a, b) => a.data.order - b.
                 {d.ctaLabel && d.ctaId && (
                   <a class="btn btn--ink pack__cta" href="#kontakt" data-cta={d.ctaId}>
                     {d.ctaLabel}{' '}
-                    <svg aria-hidden="true"><use href="#i-arrow"></use></svg>
+                    <svg aria-hidden="true">
+                      <use href="#i-arrow" />
+                    </svg>
                   </a>
                 )}
               </div>
@@ -54,10 +56,10 @@ const packs = (await getCollection('packages')).sort((a, b) => a.data.order - b.
       }
     </ul>
     <div class="packs__foot">
-      <p
-        >Potrzebujesz innej liczby godzin lub niestandardowego zakresu? Wybierz Custom – dopasujemy
-        współpracę do&nbsp;Twojego marketingu.</p
-      >
+      <p>
+        Potrzebujesz innej liczby godzin lub niestandardowego zakresu? Wybierz Custom – dopasujemy
+        współpracę do&nbsp;Twojego marketingu.
+      </p>
       <a class="btn btn--y btn--xl" href="#kontakt" data-cta="packages"
         >Dobierzmy zakres współpracy <svg aria-hidden="true"><use href="#i-arrow"></use></svg></a
       >

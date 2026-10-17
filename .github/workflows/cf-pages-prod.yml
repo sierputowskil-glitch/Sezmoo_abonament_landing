@@ -20,6 +20,12 @@ jobs:
       - run: npm ci
       - name: Astro check
         run: npm run check
+      - name: Functions typecheck
+        run: npm run check:functions
+      - name: Lint
+        run: npm run lint
+      - name: Test
+        run: npm test
       - name: Build Astro (prod)
         env:
           PUBLIC_SITE_URL: https://abonament.sezmoo.com

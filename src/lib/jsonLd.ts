@@ -1,12 +1,14 @@
 import { getCollection } from 'astro:content';
 import { EMAIL, PHONE_TEL, siteUrl } from './site';
 
+/** JSON-LD as a script body: escape `<` so `</script>` in content cannot break out. */
+export function serializeJsonLd(data: unknown): string {
+  return JSON.stringify(data).replace(/</g, '\\u003c');
+}
+
 /** JSON-LD graph for the abonament LP (Service + FAQPage). */
 export async function buildJsonLd() {
-  const [faq, packages] = await Promise.all([
-    getCollection('faq'),
-    getCollection('packages'),
-  ]);
+  const [faq, packages] = await Promise.all([getCollection('faq'), getCollection('packages')]);
 
   const faqSorted = [...faq].sort((a, b) => a.data.order - b.data.order);
   const packSorted = [...packages].sort((a, b) => a.data.order - b.data.order);
@@ -54,7 +56,7 @@ export async function buildJsonLd() {
         inLanguage: 'pl-PL',
         mainEntity: faqSorted.map((item) => ({
           '@type': 'Question',
-          name: item.data.question.replace(/&nbsp;/g, ' '),
+          name: item.data.question.replace(/\u00a0/g, ' ').replace(/&nbsp;/g, ' '),
           acceptedAnswer: {
             '@type': 'Answer',
             text: item.data.schemaAnswer,

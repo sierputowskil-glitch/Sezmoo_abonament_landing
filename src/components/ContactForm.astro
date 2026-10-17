@@ -3,6 +3,7 @@
  * Abonament contact form markup + bundled client (Turnstile / API / dataLayer).
  */
 import { NEED_OPTIONS, PACKAGE_OPTIONS } from '../lib/site';
+import { publicUrl } from '../lib/publicUrl';
 
 interface Props {
   formId?: string;
@@ -11,36 +12,43 @@ interface Props {
 const { formId = 'abonament-form' } = Astro.props;
 ---
 
-<form class="cform" id={formId} name="abonament" method="POST" action="/api/contact" novalidate>
+<form
+  class="cform"
+  id={formId}
+  name="abonament"
+  method="POST"
+  action={publicUrl('api/contact')}
+  novalidate
+>
   <input type="hidden" name="form-name" value="abonament" />
   <input type="hidden" name="lang" value="pl" />
-  <p hidden aria-hidden="true"
-    ><label>Nie wypełniaj: <input name="bot-field" tabindex="-1" autocomplete="off" /></label></p
-  >
+  <p hidden aria-hidden="true">
+    <label>Nie wypełniaj: <input name="bot-field" tabindex="-1" autocomplete="off" /></label>
+  </p>
   <div class="cform__row">
-    <div class="cfield"
-      ><label for="ab-name">Imię i nazwisko</label><input
+    <div class="cfield">
+      <label for="ab-name">Imię i nazwisko</label><input
         id="ab-name"
         name="name"
         type="text"
         autocomplete="name"
         placeholder="Jan Kowalski"
         required
-      /></div
-    >
-    <div class="cfield"
-      ><label for="ab-company">Firma</label><input
+      />
+    </div>
+    <div class="cfield">
+      <label for="ab-company">Firma</label><input
         id="ab-company"
         name="company"
         type="text"
         autocomplete="organization"
         placeholder="Nazwa firmy"
-      /></div
-    >
+      />
+    </div>
   </div>
   <div class="cform__row">
-    <div class="cfield"
-      ><label for="ab-email">E-mail</label><input
+    <div class="cfield">
+      <label for="ab-email">E-mail</label><input
         id="ab-email"
         name="email"
         type="email"
@@ -48,18 +56,18 @@ const { formId = 'abonament-form' } = Astro.props;
         inputmode="email"
         placeholder="ty@firma.pl"
         required
-      /></div
-    >
-    <div class="cfield"
-      ><label for="ab-phone">Telefon</label><input
+      />
+    </div>
+    <div class="cfield">
+      <label for="ab-phone">Telefon</label><input
         id="ab-phone"
         name="phone"
         type="tel"
         autocomplete="tel"
         inputmode="tel"
         placeholder="+48 ..."
-      /></div
-    >
+      />
+    </div>
   </div>
   <div class="cform__row">
     <div class="cfield">
@@ -89,15 +97,14 @@ const { formId = 'abonament-form' } = Astro.props;
       </select>
     </div>
   </div>
-  <div class="cfield"
-    ><label for="ab-msg">Wiadomość</label><textarea
+  <div class="cfield">
+    <label for="ab-msg">Wiadomość</label><textarea
       id="ab-msg"
       name="message"
       placeholder="Ile materiałów miesięcznie, jakie kanały..."
       minlength="10"
-      required></textarea
-    ></div
-  >
+      required></textarea>
+  </div>
   <label class="cconsent"
     ><input type="checkbox" name="consent" value="1" required />
     <span

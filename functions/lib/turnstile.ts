@@ -1,5 +1,9 @@
-const SITEVERIFY_URL =
-  'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+const SITEVERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+
+/** Cloudflare dummy secrets (always-pass / always-fail / already-spent). */
+export function isTestTurnstileSecret(secret: string): boolean {
+  return /^[123]x0000000000000000000000000000000AA$/i.test(secret.trim());
+}
 
 export type TurnstileResult = { ok: true } | { ok: false; error: string };
 

@@ -6,10 +6,7 @@ import { defineConfig, envField } from 'astro/config';
  * PUBLIC_BASE_PATH — URL prefix; "/" for prod root.
  * (Config itself still reads process.env — astro:env is for app code.)
  */
-const site = (process.env.PUBLIC_SITE_URL || 'https://abonament.sezmoo.com').replace(
-  /\/$/,
-  '',
-);
+const site = (process.env.PUBLIC_SITE_URL || 'https://abonament.sezmoo.com').replace(/\/$/, '');
 const rawBase = process.env.PUBLIC_BASE_PATH ?? '/';
 const base = rawBase === '/' || rawBase === '' ? '/' : `/${rawBase.replace(/^\/|\/$/g, '')}/`;
 

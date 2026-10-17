@@ -20,14 +20,18 @@ jobs:
       - run: npm ci
       - name: Astro check
         run: npm run check
+      - name: Functions typecheck
+        run: npm run check:functions
+      - name: Lint
+        run: npm run lint
+      - name: Test
+        run: npm test
       - name: Build Astro (preview / noindex)
         env:
           # Canonical for preview builds; real URL is *.sezmoo-abonament.pages.dev
           PUBLIC_SITE_URL: https://sezmoo-abonament.pages.dev
           PUBLIC_BASE_PATH: /
           PUBLIC_CONTACT_API_URL: /api/contact
-          # Cloudflare Turnstile invisible always-pass test key
-          PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000BB
           PUBLIC_ROBOTS: noindex
         run: npm run build
       - name: Publish preview to sezmoo-abonament

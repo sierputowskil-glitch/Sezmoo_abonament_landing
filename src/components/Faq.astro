@@ -13,10 +13,12 @@ const items = (await getCollection('faq')).sort((a, b) => a.data.order - b.data.
         items.map((item) => (
           <details open={item.data.open || undefined}>
             <summary>
-              <Fragment set:html={item.data.question} />
-              <svg aria-hidden="true"><use href="#i-plus"></use></svg>
+              {item.data.question}
+              <svg aria-hidden="true">
+                <use href="#i-plus" />
+              </svg>
             </summary>
-            <p set:html={item.data.answer} />
+            <p>{item.data.answer}</p>
           </details>
         ))
       }

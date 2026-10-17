@@ -1,4 +1,5 @@
 # Copy to .dev.vars for `wrangler pages dev` — do not commit real passwords.
+ALLOW_TURNSTILE_TEST=1
 TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
 SMTP_HOST=s186.cyber-folks.pl
 SMTP_PORT=465
@@ -7,3 +8,5 @@ SMTP_PASS=
 SMTP_FROM=noreply@sezmoo.com
 SMTP_FROM_NAME=SEZMOO
 MAIL_TO=biuro@sezmoo.com
+# MAIL_TO_PREVIEW is Pages preview only (dashboard Preview env). Do not set it here
+# unless you are testing a pages.dev hostname locally.

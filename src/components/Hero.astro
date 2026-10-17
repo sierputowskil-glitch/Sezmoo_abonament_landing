@@ -1,59 +1,61 @@
 ---
 import { Image } from 'astro:assets';
-import showreelPoster from '../assets/abonament/showreel-poster-landscape.webp';
+import { getHeroVideoPoster, HERO_LCP_SIZES, HERO_LCP_WIDTHS, showreelPoster } from '../lib/lcp';
+import { publicUrl } from '../lib/publicUrl';
 
-const lcpSizes = '(min-width: 981px) 55vw, 100vw';
+const lcpSizes = HERO_LCP_SIZES;
+const poster = await getHeroVideoPoster();
 ---
 
 <section class="hero" id="top">
   <div class="shell hero__grid">
     <div class="hero__copy">
       <p class="mono">Twój marketing. Nasze zaplecze kreatywne.</p>
-      <h1 class="h1"
-        >Kompleksowe <span class="h1__l2"
+      <h1 class="h1">
+        Kompleksowe <span class="h1__l2"
           >wsparcie <span class="thin"><span class="hl">dla&nbsp;marketingu.</span></span></span
-        ><span class="sub">Stały zespół wideo, foto i&nbsp;grafiki.</span></h1
-      >
-      <p class="lead"
-        >Wspieramy działy marketingu i&nbsp;osoby odpowiedzialne za&nbsp;marketing w&nbsp;firmach
-        w&nbsp;codziennej produkcji wideo, zdjęć, grafiki i&nbsp;contentu.</p
-      >
-      <p class="lead"
-        >Wybierasz miesięczną pulę godzin i&nbsp;elastycznie przeznaczasz ją na&nbsp;aktualne potrzeby
-        marki. Ty wyznaczasz kierunek – my pomagamy go realizować.</p
-      >
+        ><span class="sub">Stały zespół wideo, foto i&nbsp;grafiki.</span>
+      </h1>
+      <p class="lead">
+        Wspieramy działy marketingu i&nbsp;osoby odpowiedzialne za&nbsp;marketing w&nbsp;firmach
+        w&nbsp;codziennej produkcji wideo, zdjęć, grafiki i&nbsp;contentu.
+      </p>
+      <p class="lead">
+        Wybierasz miesięczną pulę godzin i&nbsp;elastycznie przeznaczasz ją na&nbsp;aktualne
+        potrzeby marki. Ty wyznaczasz kierunek – my pomagamy go realizować.
+      </p>
       <ul class="hero__bul">
-        <li
-          ><svg aria-hidden="true"><use href="#i-check"></use></svg><span
+        <li>
+          <svg aria-hidden="true"><use href="#i-check"></use></svg><span
             >Jeden zespół, który poznaje Twoją markę.</span
-          ></li
-        >
-        <li
-          ><svg aria-hidden="true"><use href="#i-check"></use></svg><span
+          >
+        </li>
+        <li>
+          <svg aria-hidden="true"><use href="#i-check"></use></svg><span
             >Wideo, foto i&nbsp;grafika w&nbsp;ramach wspólnej puli godzin.</span
-          ></li
-        >
-        <li
-          ><svg aria-hidden="true"><use href="#i-check"></use></svg><span
+          >
+        </li>
+        <li>
+          <svg aria-hidden="true"><use href="#i-check"></use></svg><span
             >Stały budżet i&nbsp;jasne rozliczenie wykonanych prac.</span
-          ></li
-        >
+          >
+        </li>
       </ul>
       <div class="hero__cta">
         <a class="btn btn--y btn--xl" href="#kontakt" data-cta="hero"
           >Porozmawiajmy o&nbsp;abonamencie <svg aria-hidden="true"><use href="#i-arrow"></use></svg
           ></a
         >
-        <p class="hero__micro"
-          >Bezpłatna, niezobowiązująca rozmowa.<br />Odpowiadamy w&nbsp;ciągu 24&nbsp;godzin.</p
-        >
+        <p class="hero__micro">
+          Bezpłatna, niezobowiązująca rozmowa.<br />Odpowiadamy w&nbsp;ciągu 24&nbsp;godzin.
+        </p>
       </div>
     </div>
     <div class="hero__media">
       <div class="hero__frame" data-bg-video data-bg-video-priority="hero">
         <Image
           src={showreelPoster}
-          widths={[800, 1280, 1920]}
+          widths={[...HERO_LCP_WIDTHS]}
           sizes={lcpSizes}
           format="webp"
           alt=""
@@ -64,17 +66,13 @@ const lcpSizes = '(min-width: 981px) 55vw, 100vw';
           height={720}
         />
         <video
-          autoplay
           muted
           loop
           playsinline
-          webkit-playsinline
-          preload="auto"
-          width="1280"
-          height="720"
+          preload="none"
           aria-hidden="true"
-          src="/assets/abonament/video/showreel.mp4"
-        ></video>
+          data-src={publicUrl('assets/abonament/video/showreel.mp4')}
+          poster={poster.src}></video>
       </div>
       <span class="hero__tc"><span class="dot"></span>SEZMOO · SHOWREEL 2026</span>
       <svg class="hero__tear" fill="#F5F3EF" aria-hidden="true"><use href="#tear"></use></svg>
@@ -83,21 +81,21 @@ const lcpSizes = '(min-width: 981px) 55vw, 100vw';
   </div>
   <div class="shell">
     <ul class="hero__bul hero__bul--m">
-      <li
-        ><svg aria-hidden="true"><use href="#i-check"></use></svg><span
+      <li>
+        <svg aria-hidden="true"><use href="#i-check"></use></svg><span
           >Jeden zespół, który poznaje Twoją markę.</span
-        ></li
-      >
-      <li
-        ><svg aria-hidden="true"><use href="#i-check"></use></svg><span
+        >
+      </li>
+      <li>
+        <svg aria-hidden="true"><use href="#i-check"></use></svg><span
           >Wideo, foto i&nbsp;grafika w&nbsp;ramach wspólnej puli godzin.</span
-        ></li
-      >
-      <li
-        ><svg aria-hidden="true"><use href="#i-check"></use></svg><span
+        >
+      </li>
+      <li>
+        <svg aria-hidden="true"><use href="#i-check"></use></svg><span
           >Stały budżet i&nbsp;jasne rozliczenie wykonanych prac.</span
-        ></li
-      >
+        >
+      </li>
     </ul>
   </div>
 </section>

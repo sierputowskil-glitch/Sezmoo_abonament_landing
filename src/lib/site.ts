@@ -2,6 +2,8 @@
 
 import { PUBLIC_SITE_URL } from 'astro:env/client';
 
+export { NEED_OPTIONS, PACKAGE_OPTIONS } from './form-options';
+
 export const GTM_ID = 'GTM-KJFG8DZL';
 
 export const PHONE_DISPLAY = '+48 739 260 450';
@@ -21,22 +23,3 @@ export function siteUrl(pathname = '/'): string {
 export function siteOrigin(): string {
   return PUBLIC_SITE_URL.replace(/\/$/, '');
 }
-
-/** Form select: package (whitelist must match /api/contact). */
-export const PACKAGE_OPTIONS = [
-  { value: 'Nie wiem – doradźcie', label: 'Nie wiem – doradźcie' },
-  { value: '30h', label: '30h' },
-  { value: '60h', label: '60h', selected: true },
-  { value: '120h', label: '120h' },
-  { value: 'Custom', label: 'Custom' },
-] as const;
-
-/** Form select: need / obszar (whitelist must match /api/contact). */
-export const NEED_OPTIONS = [
-  { value: '', label: 'Wybierz obszar' },
-  { value: 'Wideo / motion', label: 'Wideo / motion' },
-  { value: 'Foto', label: 'Foto' },
-  { value: 'Grafika', label: 'Grafika' },
-  { value: 'Social media', label: 'Social media' },
-  { value: 'Wszystko po trochu', label: 'Wszystko po trochu' },
-] as const;

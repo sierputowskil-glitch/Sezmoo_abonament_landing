@@ -28,3 +28,4 @@ dist/
 .cache/
 .astro/
 .wrangler/
+.tmp*

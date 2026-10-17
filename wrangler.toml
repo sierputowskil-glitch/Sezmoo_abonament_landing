@@ -10,6 +10,9 @@ compatibility_flags = ["nodejs_compat"]
 #
 # Optional vars (can also live in dashboard):
 #   SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_FROM, SMTP_FROM_NAME, MAIL_TO
+# Preview (*.pages.dev) never uses MAIL_TO — set MAIL_TO_PREVIEW in Pages *Preview*
+# environment (a sink inbox). Leave it unset to disable the form on preview.
+# Local dummy Turnstile: ALLOW_TURNSTILE_TEST=1 in .dev.vars only.
 
 [vars]
 SMTP_HOST = "s186.cyber-folks.pl"
@@ -20,7 +23,7 @@ SMTP_FROM = "noreply@sezmoo.com"
 SMTP_FROM_NAME = "SEZMOO"
 MAIL_TO = "biuro@sezmoo.com"
 
-# Contact form rate limit — sezmoo.com account (prod + Pages preview share this).
+# Prod KV. Prefer a separate namespace for preview_id when you create one in the dashboard.
 [[kv_namespaces]]
 binding = "CONTACT_RATE_LIMIT"
 id = "75ef0bc2ea3f4274b94b58ff076b27e5"

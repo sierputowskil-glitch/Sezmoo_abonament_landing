@@ -1,5 +1,6 @@
 ---
 import { Image } from 'astro:assets';
+import { publicUrl } from '../lib/publicUrl';
 import ytAudi from '../assets/abonament/yt-audi-rs3.webp';
 import ytJaecoo from '../assets/abonament/yt-jaecoo.webp';
 import zakresFoto from '../assets/abonament/zakres-foto.webp';
@@ -9,13 +10,13 @@ import sohoForm from '../assets/abonament/realizacja-soho-form.webp';
 <section class="sec" aria-labelledby="scope-h" style="padding-top:0">
   <div class="shell">
     <div class="sec__head">
-      <h2 class="h2" id="scope-h"
-        >Wideo, foto, grafika i&nbsp;content – <span class="em">w&nbsp;jednym zespole.</span></h2
-      >
-      <p class="lead"
-        >Łączysz kompetencje w&nbsp;ramach ustalonej puli godzin i&nbsp;dopasowujesz je do&nbsp;planu
-        komunikacji swojej marki.</p
-      >
+      <h2 class="h2" id="scope-h">
+        Wideo, foto, grafika i&nbsp;content – <span class="em">w&nbsp;jednym zespole.</span>
+      </h2>
+      <p class="lead">
+        Łączysz kompetencje w&nbsp;ramach ustalonej puli godzin i&nbsp;dopasowujesz je do&nbsp;planu
+        komunikacji swojej marki.
+      </p>
     </div>
     <ul class="scope">
       <li>
@@ -38,8 +39,7 @@ import sohoForm from '../assets/abonament/realizacja-soho-form.webp';
             width="720"
             height="900"
             aria-hidden="true"
-            data-src="/assets/abonament/video/audi-rs3.mp4"
-          ></video>
+            data-src={publicUrl('assets/abonament/video/audi-rs3.mp4')}></video>
         </div>
         <h3>Wideo</h3>
         <p>Filmy promocyjne, rolki, relacje, ujęcia z&nbsp;drona i&nbsp;montaż.</p>
@@ -71,10 +71,10 @@ import sohoForm from '../assets/abonament/realizacja-soho-form.webp';
           />
         </div>
         <h3>Grafika i&nbsp;WWW</h3>
-        <p
-          >Grafiki do&nbsp;social mediów, materiały sprzedażowe, projekty do&nbsp;druku, aktualizacje
-          stron i&nbsp;landing page.</p
-        >
+        <p>
+          Grafiki do&nbsp;social mediów, materiały sprzedażowe, projekty do&nbsp;druku, aktualizacje
+          stron i&nbsp;landing page.
+        </p>
       </li>
       <li>
         <div class="scope__img scope__img--vid" data-bg-video>
@@ -96,11 +96,13 @@ import sohoForm from '../assets/abonament/realizacja-soho-form.webp';
             width="720"
             height="900"
             aria-hidden="true"
-            data-src="/assets/abonament/video/jaecoo-mundial.mp4"
-          ></video>
+            data-src={publicUrl('assets/abonament/video/jaecoo-mundial.mp4')}></video>
         </div>
         <h3>Content i&nbsp;social media</h3>
-        <p>Materiały do&nbsp;publikacji, posty, stories i&nbsp;wsparcie w&nbsp;planowaniu komunikacji.</p>
+        <p>
+          Materiały do&nbsp;publikacji, posty, stories i&nbsp;wsparcie w&nbsp;planowaniu
+          komunikacji.
+        </p>
       </li>
     </ul>
     <p class="mono swipe" aria-hidden="true">Przesuń →</p>

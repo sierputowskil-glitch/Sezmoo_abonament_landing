@@ -11,7 +11,6 @@ export type SmtpEnv = {
   SMTP_PASS?: string;
   SMTP_FROM?: string;
   SMTP_FROM_NAME?: string;
-  MAIL_TO?: string;
 };
 
 export type SmtpResult = { ok: true } | { ok: false; error: string };
@@ -21,6 +20,7 @@ export async function sendContactEmail(
     subject: string;
     text: string;
     replyTo: string;
+    to: string;
     replyName?: string;
   },
   env: SmtpEnv,
@@ -30,9 +30,9 @@ export async function sendContactEmail(
   const username = (env.SMTP_USER || '').trim();
   const password = env.SMTP_PASS?.trim() || '';
   const from = (env.SMTP_FROM || username || 'noreply@sezmoo.com').trim();
-  const to = (env.MAIL_TO || 'biuro@sezmoo.com').trim();
+  const to = opts.to.trim();
 
-  if (!username || !password) {
+  if (!username || !password || !to) {
     console.error('smtp_not_configured');
     return { ok: false, error: 'SMTP not configured' };
   }
