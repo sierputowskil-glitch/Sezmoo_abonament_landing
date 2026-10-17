@@ -4,8 +4,32 @@
  *
  * Prod differs from local: GTM + CookieYes mount late and can block the first
  * muted autoplay attempt. Retries after load / consent UI / gesture.
- * If autoplay is blocked (or reduced-motion), show an explicit play control.
+ * On Save-Data / cellular / slow effectiveType: no autoplay — play control only
+ * so images can load first on LTE.
  */
+
+type NetworkInformation = {
+  saveData?: boolean;
+  effectiveType?: string;
+  type?: string;
+  downlink?: number;
+};
+
+function getConnection(): NetworkInformation | undefined {
+  return (navigator as Navigator & { connection?: NetworkInformation }).connection;
+}
+
+/** Save-Data, cellular, slow effectiveType, or very low downlink → manual play. */
+function preferManualVideo(): boolean {
+  const conn = getConnection();
+  if (!conn) return false;
+  if (conn.saveData) return true;
+  const type = (conn.type || '').toLowerCase();
+  if (type === 'cellular') return true;
+  const eff = (conn.effectiveType || '').toLowerCase();
+  if (eff === 'slow-2g' || eff === '2g' || eff === '3g') return true;
+  return typeof conn.downlink === 'number' && conn.downlink > 0 && conn.downlink < 1.5;
+}
 
 function initStickyMbar(): void {
   const bar = document.getElementById('mbar');
@@ -111,7 +135,24 @@ function playBgVideo(wrap: HTMLElement): void {
   tryPlayBgVideo(v);
 }
 
-/** Manual play for Low Data Mode / blocked autoplay — runs inside a user gesture. */
+/** Park src on data-src so the MP4 is not fetched until the user hits play. */
+function deferVideoSrc(v: HTMLVideoElement): void {
+  const src = v.getAttribute('src');
+  if (src) {
+    if (!v.getAttribute('data-src')) v.setAttribute('data-src', src);
+    v.removeAttribute('src');
+    try {
+      v.load();
+    } catch {
+      /* ignore */
+    }
+  }
+  v.removeAttribute('autoplay');
+  v.autoplay = false;
+  v.preload = 'none';
+}
+
+/** Manual play for Save-Data / LTE / blocked autoplay — runs inside a user gesture. */
 function showPlayControl(wrap: HTMLElement | null): void {
   if (!wrap || wrap.classList.contains('is-playing')) return;
   if (wrap.querySelector('.bg-video-play')) return;
@@ -119,8 +160,7 @@ function showPlayControl(wrap: HTMLElement | null): void {
   if (!(v instanceof HTMLVideoElement)) return;
 
   armMutedInline(v);
-  attachSrc(v);
-  v.removeAttribute('autoplay');
+  deferVideoSrc(v);
 
   const btn = document.createElement('button');
   btn.type = 'button';
@@ -208,18 +248,17 @@ function prepareManualPlay(wrap: HTMLElement): void {
   const v = wrap.querySelector('video');
   if (!(v instanceof HTMLVideoElement)) return;
   armMutedInline(v);
-  attachSrc(v);
-  v.removeAttribute('autoplay');
+  deferVideoSrc(v);
   v.addEventListener('playing', () => markPlaying(v));
   showPlayControl(wrap);
 }
 
 function initBgVideos(): void {
-  // Do not gate on navigator.connection.saveData — on LTE many browsers set it
-  // without Low Data Mode, which wrongly killed autoplay on mobile.
   const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  if (reduce) {
-    // No autoplay for a11y, but keep src + play control (user-initiated motion is OK).
+  const constrained = preferManualVideo();
+
+  if (reduce || constrained) {
+    // No autoplay — poster + play. MP4 stays on data-src until tap (faster LTE paint).
     document.querySelectorAll<HTMLElement>('[data-bg-video]').forEach((wrap) => {
       prepareManualPlay(wrap);
     });
@@ -231,7 +270,6 @@ function initBgVideos(): void {
 
   document.querySelectorAll<HTMLElement>('[data-bg-video]').forEach((wrap) => {
     if (wrap.getAttribute('data-bg-video-priority') === 'hero') {
-      // Defer MP4 start so LTE can finish LCP/poster + below-fold images first.
       const start = () => playBgVideo(wrap);
       if ('requestIdleCallback' in window) {
         window.requestIdleCallback(start, { timeout: 2500 });
