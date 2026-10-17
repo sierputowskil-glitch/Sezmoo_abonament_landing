@@ -4,15 +4,8 @@
  *
  * Prod differs from local: GTM + CookieYes mount late and can block the first
  * muted autoplay attempt. Retries after load / consent UI / gesture.
- * Low Data Mode: no autoplay — show an explicit play control instead.
+ * If autoplay is blocked (or reduced-motion), show an explicit play control.
  */
-
-type NetworkInformation = { saveData?: boolean };
-
-function getSaveData(): boolean {
-  const conn = (navigator as Navigator & { connection?: NetworkInformation }).connection;
-  return Boolean(conn?.saveData);
-}
 
 function initStickyMbar(): void {
   const bar = document.getElementById('mbar');
@@ -222,21 +215,11 @@ function prepareManualPlay(wrap: HTMLElement): void {
 }
 
 function initBgVideos(): void {
+  // Do not gate on navigator.connection.saveData — on LTE many browsers set it
+  // without Low Data Mode, which wrongly killed autoplay on mobile.
   const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   if (reduce) {
-    document.querySelectorAll<HTMLVideoElement>('[data-bg-video] video').forEach((v) => {
-      v.removeAttribute('autoplay');
-      v.removeAttribute('data-src');
-      v.removeAttribute('src');
-      v.pause();
-    });
-    return;
-  }
-
-  const saveData = getSaveData();
-
-  if (saveData) {
-    // Low Data Mode: keep src, no autoplay — explicit play control (user gesture + bandwidth choice).
+    // No autoplay for a11y, but keep src + play control (user-initiated motion is OK).
     document.querySelectorAll<HTMLElement>('[data-bg-video]').forEach((wrap) => {
       prepareManualPlay(wrap);
     });
