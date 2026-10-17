@@ -179,8 +179,11 @@ function initLateAutoplayRetries(): void {
 }
 
 function initBgVideos(): void {
+  // Accessibility only — do NOT couple this to saveData / Low Data Mode.
+  // iOS Low Data Mode sets navigator.connection.saveData and was stripping
+  // src+autoplay, leaving an empty <video> under the poster (prod mobile).
   const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  if (reduce || getSaveData()) {
+  if (reduce) {
     document.querySelectorAll<HTMLVideoElement>('[data-bg-video] video').forEach((v) => {
       v.removeAttribute('autoplay');
       v.removeAttribute('data-src');
@@ -190,14 +193,19 @@ function initBgVideos(): void {
     return;
   }
 
+  const saveData = getSaveData();
+
   initGestureUnlock();
   initLateAutoplayRetries();
 
   document.querySelectorAll<HTMLElement>('[data-bg-video]').forEach((wrap) => {
-    if (wrap.getAttribute('data-bg-video-priority') === 'hero') {
+    const isHero = wrap.getAttribute('data-bg-video-priority') === 'hero';
+    // On Low Data Mode still autoplay the hero showreel; defer scope clips.
+    if (isHero) {
       playBgVideo(wrap);
       return;
     }
+    if (saveData) return;
     whenNear(wrap, () => playBgVideo(wrap));
   });
 }
