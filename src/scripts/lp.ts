@@ -2,16 +2,15 @@
  * LP client: sticky mbar, data-cta → dataLayer lp_cta_click,
  * self-hosted muted background videos (no YouTube iframe).
  *
- * Videos use data-src so MP4s do not compete with lazy images on first paint.
- * Save-Data / slow-2g/2g: play control only.
- * Otherwise autoplay after eager images settle; offscreen clips release bandwidth
- * on scroll so Wi‑Fi showreel does not starve below-the-fold content.
+ * Policy:
+ * - Save-Data / reduced-motion / slow-2g|2g → poster + play (no MP4 until tap)
+ * - Wi‑Fi / LTE / unknown (iOS): autoplay AFTER eager images settle
+ * - One clip downloading at a time; offscreen hero yields bandwidth on scroll
  */
 
 type NetworkInformation = {
   saveData?: boolean;
   effectiveType?: string;
-  type?: string;
   downlink?: number;
 };
 
@@ -19,11 +18,7 @@ function getConnection(): NetworkInformation | undefined {
   return (navigator as Navigator & { connection?: NetworkInformation }).connection;
 }
 
-/**
- * Save-Data or truly slow nets → manual play.
- * Do NOT gate on connection.type === 'cellular': iOS often has no API (autoplay
- * on LTE is fine), and forcing play-only on LTE broke the intended UX.
- */
+/** Save-Data or truly slow nets only — never gate on cellular (breaks iOS/LTE autoplay). */
 function preferManualVideo(): boolean {
   const conn = getConnection();
   if (!conn) return false;
@@ -31,11 +26,6 @@ function preferManualVideo(): boolean {
   const eff = (conn.effectiveType || '').toLowerCase();
   if (eff === 'slow-2g' || eff === '2g') return true;
   return typeof conn.downlink === 'number' && conn.downlink > 0 && conn.downlink < 1.0;
-}
-
-/** Phone / coarse pointer. */
-function isMobileLike(): boolean {
-  return !!window.matchMedia?.('(max-width: 900px), (pointer: coarse)').matches;
 }
 
 function initStickyMbar(): void {
@@ -109,7 +99,6 @@ function isInViewport(el: Element): boolean {
   return r.bottom > 0 && r.right > 0 && r.top < vh && r.left < vw;
 }
 
-/** iOS often allows only one decoder — free slots for the visible clip. */
 function pauseOffscreenBgVideos(except?: HTMLVideoElement): void {
   document.querySelectorAll<HTMLVideoElement>('[data-bg-video] video').forEach((v) => {
     if (v === except || v.paused) return;
@@ -117,7 +106,7 @@ function pauseOffscreenBgVideos(except?: HTMLVideoElement): void {
   });
 }
 
-/** Abort offscreen downloads so images can use the connection. */
+/** Abort offscreen MP4 downloads so images can use the pipe. */
 function releaseOffscreenVideoBandwidth(except?: HTMLVideoElement): void {
   document.querySelectorAll<HTMLVideoElement>('[data-bg-video] video').forEach((v) => {
     if (v === except) return;
@@ -136,8 +125,7 @@ function releaseOffscreenVideoBandwidth(except?: HTMLVideoElement): void {
     } catch {
       /* ignore */
     }
-    const wrap = v.closest('[data-bg-video]');
-    wrap?.classList.remove('is-playing');
+    v.closest('[data-bg-video]')?.classList.remove('is-playing');
   });
 }
 
@@ -167,7 +155,6 @@ function playBgVideo(wrap: HTMLElement): void {
   tryPlayBgVideo(v);
 }
 
-/** Park src on data-src so the MP4 is not fetched until the user hits play. */
 function deferVideoSrc(v: HTMLVideoElement): void {
   const src = v.getAttribute('src');
   if (src) {
@@ -184,7 +171,6 @@ function deferVideoSrc(v: HTMLVideoElement): void {
   v.preload = 'none';
 }
 
-/** Manual play for Save-Data / blocked autoplay — runs inside a user gesture. */
 function showPlayControl(wrap: HTMLElement | null): void {
   if (!wrap || wrap.classList.contains('is-playing')) return;
   if (wrap.querySelector('.bg-video-play')) return;
@@ -230,10 +216,6 @@ function whenNear(el: HTMLElement, fn: () => void): void {
   io.observe(el);
 }
 
-/**
- * Retry play only — never attachSrc. CookieYes / GTM mutations used to call this
- * and pull every scope MP4 at once (~10MB), leaving image placeholders white.
- */
 function kickVisiblePaused(): void {
   document.querySelectorAll<HTMLVideoElement>('[data-bg-video] video').forEach((v) => {
     if (!v.getAttribute('src')) return;
@@ -243,7 +225,6 @@ function kickVisiblePaused(): void {
   });
 }
 
-/** Low Power Mode / CookieYes first tap: play() must run inside a user gesture. */
 function initGestureUnlock(): void {
   const opts: AddEventListenerOptions = { capture: true, passive: true };
   window.addEventListener('pointerdown', kickVisiblePaused, opts);
@@ -251,10 +232,6 @@ function initGestureUnlock(): void {
   window.addEventListener('click', kickVisiblePaused, opts);
 }
 
-/**
- * Prod-only delay: CookieYes (via GTM) mounts after first paint and can steal the
- * first autoplay window. Retry play on already-sourced clips only.
- */
 function initLateAutoplayRetries(): void {
   const delays = [400, 1200, 2500, 5000];
   const run = () => kickVisiblePaused();
@@ -281,13 +258,17 @@ function prepareManualPlay(wrap: HTMLElement): void {
   showPlayControl(wrap);
 }
 
-/** Wait until eager/LCP images have decoded (or timeout) before any MP4. */
-function whenEagerImagesReady(fn: () => void, timeoutMs = 4500): void {
+/**
+ * Wi‑Fi / LTE autoplay gate: all eager (+ LCP) images load+decode first,
+ * then MP4 may start. Timeout so a hung image never blocks forever.
+ */
+function whenEagerImagesReady(fn: () => void, timeoutMs = 4000): void {
   const imgs = [
     ...document.querySelectorAll<HTMLImageElement>(
       'img[loading="eager"], img[fetchpriority="high"]',
     ),
   ];
+
   let finished = false;
   const done = () => {
     if (finished) return;
@@ -295,52 +276,46 @@ function whenEagerImagesReady(fn: () => void, timeoutMs = 4500): void {
     fn();
   };
 
-  const pending = imgs.filter((img) => !(img.complete && img.naturalWidth > 0));
-  if (pending.length === 0) {
-    if ('requestIdleCallback' in window) {
-      window.requestIdleCallback(done, { timeout: 600 });
-    } else {
-      setTimeout(done, 200);
+  const settle = async (img: HTMLImageElement) => {
+    if (!(img.complete && img.naturalWidth > 0)) {
+      await new Promise<void>((resolve) => {
+        img.addEventListener('load', () => resolve(), { once: true });
+        img.addEventListener('error', () => resolve(), { once: true });
+      });
     }
-    return;
-  }
-
-  const timer = window.setTimeout(done, timeoutMs);
-  let left = pending.length;
-  const one = () => {
-    left -= 1;
-    if (left <= 0) {
-      window.clearTimeout(timer);
-      done();
+    if (typeof img.decode === 'function') {
+      try {
+        await img.decode();
+      } catch {
+        /* ignore decode errors */
+      }
     }
   };
-  pending.forEach((img) => {
-    img.addEventListener('load', one, { once: true });
-    img.addEventListener('error', one, { once: true });
+
+  const timer = window.setTimeout(done, timeoutMs);
+  void Promise.all(imgs.map(settle)).then(() => {
+    window.clearTimeout(timer);
+    done();
   });
 }
 
-/**
- * When hero leaves the viewport, drop its MP4 download so lazy team/works
- * images below can finish — Wi‑Fi was saturating on showreel (~4MB).
- */
+/** Drop hero MP4 when scrolled away so lazy team images can finish. */
 function initScrollBandwidthYield(): void {
   let ticking = false;
-  const yieldOffscreen = () => {
-    ticking = false;
-    const heroWrap = document.querySelector<HTMLElement>('[data-bg-video-priority="hero"]');
-    const heroVid = heroWrap?.querySelector('video');
-    if (!(heroVid instanceof HTMLVideoElement)) return;
-    if (isInViewport(heroVid)) return;
-    if (!heroVid.getAttribute('src')) return;
-    releaseOffscreenVideoBandwidth();
-  };
   window.addEventListener(
     'scroll',
     () => {
       if (ticking) return;
       ticking = true;
-      requestAnimationFrame(yieldOffscreen);
+      requestAnimationFrame(() => {
+        ticking = false;
+        const heroVid = document.querySelector<HTMLVideoElement>(
+          '[data-bg-video-priority="hero"] video',
+        );
+        if (!heroVid?.getAttribute('src')) return;
+        if (isInViewport(heroVid)) return;
+        releaseOffscreenVideoBandwidth();
+      });
     },
     { passive: true },
   );
@@ -348,33 +323,23 @@ function initScrollBandwidthYield(): void {
 
 function initBgVideos(): void {
   const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  const constrained = preferManualVideo();
-  const mobile = isMobileLike();
-
-  if (reduce || constrained) {
-    document.querySelectorAll<HTMLElement>('[data-bg-video]').forEach((wrap) => {
-      prepareManualPlay(wrap);
-    });
+  if (reduce || preferManualVideo()) {
+    document.querySelectorAll<HTMLElement>('[data-bg-video]').forEach(prepareManualPlay);
     return;
   }
 
+  // Wi‑Fi / LTE / unknown: images first, then autoplay.
   initGestureUnlock();
   initLateAutoplayRetries();
   initScrollBandwidthYield();
 
-  document.querySelectorAll<HTMLElement>('[data-bg-video]').forEach((wrap) => {
-    const isHero = wrap.getAttribute('data-bg-video-priority') === 'hero';
-    // Mobile: hero autoplays after eager images; scope stays play-to-load
-    // so a second MP4 never races portfolio webps on Wi‑Fi.
-    if (!isHero && mobile) {
-      prepareManualPlay(wrap);
-      return;
-    }
-    if (isHero) {
-      whenEagerImagesReady(() => playBgVideo(wrap));
-      return;
-    }
-    whenEagerImagesReady(() => {
+  whenEagerImagesReady(() => {
+    document.querySelectorAll<HTMLElement>('[data-bg-video]').forEach((wrap) => {
+      if (wrap.getAttribute('data-bg-video-priority') === 'hero') {
+        playBgVideo(wrap);
+        return;
+      }
+      // Scope: start only when near — and only after images (gate above).
       whenNear(wrap, () => playBgVideo(wrap));
     });
   });
